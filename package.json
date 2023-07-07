@@ -1,0 +1,27 @@
+{
+  "name": "lruihao-blog-hugo",
+  "version": "1.0.0",
+  "description": "Lruihao's Note - A front-end technical blog.",
+  "scripts": {
+    "algolia": "atomic-algolia",
+    "build": "hugo -v --gc --minify",
+    "server": "hugo server -D --disableFastRender --navigateToChanged --bind 0.0.0.0",
+    "server:production": "npm run server -- --environment production",
+    "update:theme": "git submodule update --remote --merge themes/FixIt && git add . && git commit -m ':arrow_up: Chore(theme): update FixIt version'",
+    "qcloudcdn": "node .scripts/qcloudcdn.js $SECRET_ID $SECRET_KEY"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lruihao/hugo-blog.git"
+  },
+  "author": "Lruihao (https://github.com/Lruihao)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Lruihao/hugo-blog/issues"
+  },
+  "homepage": "https://github.com/Lruihao/hugo-blog#readme",
+  "dependencies": {
+    "atomic-algolia": "^0.3.19",
+    "qcloud-cdn-node-sdk": "^1.0.0"
+  }
+}

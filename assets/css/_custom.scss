@@ -1,0 +1,116 @@
+// ==============================
+// Custom style
+// ==============================
+@import '_custom/shaky.scss';
+
+.header-title {
+  font-family: MMT_H;
+  font-size: 2rem !important;
+  font-weight: normal;
+
+  .logo {
+    min-height: 0.8em;
+    height: 0.8rem;
+    vertical-align: revert;
+  }
+}
+
+#header-mobile {
+  .header-wrapper {
+    max-height: 3.5rem;
+  }
+
+  .header-subtitle {
+    font-size: 0.55em;
+  }
+}
+
+.single {
+  .single-subtitle {
+    color: #57606a;
+  }
+
+  .content {
+    background-image: linear-gradient(90deg, rgba(60, 10, 30, .04) 3%, transparent 0), linear-gradient(1turn, rgba(60, 10, 30, .04) 3%, transparent 0);
+    background-size: 20px 20px;
+    background-position: center;
+  
+    [data-theme='dark'] & {
+      background-image: linear-gradient(90deg, rgba(195, 245, 215, .04) 3%, transparent 0), linear-gradient(1turn, rgba(195, 245, 215, .04) 3%, transparent 0);
+    }
+  }
+}
+
+.home {
+  .profile-ghchart {
+    width: MIN(663px, 100%);
+    aspect-ratio: 663/104;
+  }
+
+  &.posts .summary .content {
+    display: block;
+  }
+}
+
+// hack valine comment
+#valine {
+  max-height: 500px;
+  overflow-y: scroll;
+
+  .vcount {
+    position: sticky;
+    top: 0;
+    cursor: pointer;
+    text-align: right;
+    font-size: 1rem;
+    background-color: $global-background-color;
+
+    [data-theme='dark'] & {
+      background-color: $global-background-color-dark;
+    }
+
+    &::after {
+      content: '来自 Valine';
+      margin-left: 0.5rem;
+      font-size: 50%;
+      @extend .text-secondary;
+    }
+  }
+  
+
+  .vpanel,
+  .vempty,
+  .vat,
+  .vpower {
+    display: none !important;
+  }
+}
+
+// Custom font
+@font-face {
+  font-family: MMT_H;
+  src: url('/fonts/mmt_header.ttf');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: MMT_LRH;
+  src: url('/fonts/mmt_sign.ttf');
+  font-display: swap;
+}
+
+// ==============================
+// Mobile style
+// ==============================
+@media only screen and (max-width: 680px) {}
+
+// ==============================
+// Dark style
+// ==============================
+[data-theme='dark'] {
+  .single {
+    .single-subtitle {
+      color: inherit;
+    }
+  }
+}

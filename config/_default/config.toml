@@ -1,0 +1,19 @@
+# -------------------------------------------------------------------------------------
+# Hugo Configuration
+# See: https://gohugo.io/getting-started/configuration/
+# -------------------------------------------------------------------------------------
+
+title = "yejian's blog"
+baseURL = "http://localhost:1313"
+theme = ["FixIt", "shortcode-mmt-netease", "shortcode-sponsor-log"]
+defaultContentLanguage = "zh-cn"
+languageCode = "zh-CN"
+hasCJKLanguage = true
+enableRobotsTXT = true
+enableEmoji = true
+enableGitInfo = true
+relativeURLs = false
+buildDrafts = false
+summaryLength = 150
+# ignore some build errors
+ignoreErrors = ["error-remote-getjson", "error-missing-instagram-accesstoken"]
