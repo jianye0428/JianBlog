@@ -4,7 +4,7 @@
 # -------------------------------------------------------------------------------------
 
 title = "yejian's blog"
-baseURL = "http://localhost:1313"
+baseURL = "http://jianye0428.github.io"
 theme = ["FixIt", "shortcode-mmt-netease", "shortcode-sponsor-log"]
 defaultContentLanguage = "zh-cn"
 languageCode = "zh-CN"
