@@ -37,7 +37,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           deploy_key: ${{ secrets.GP_DEPLOY_KEY }}
-          external_repository: Lruihao/lruihao.github.io
+          external_repository: jianye0428/jianye0428.github.io
           publish_branch: main
           publish_dir: ./public
           user_name: 'github-actions[bot]'
