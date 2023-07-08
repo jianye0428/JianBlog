@@ -1,7 +1,9 @@
 name: Hugo build and deploy
 on:
   push:
-    branches: [ master ]
+    # branches: [ master ]
+    branches:
+      - master
     paths:
       - 'assets/**'
       - 'config/**'
