@@ -38,7 +38,7 @@ jobs:
         with:
           deploy_key: ${{ secrets.GP_DEPLOY_KEY }}
           external_repository: jianye0428/jianye0428.github.io
-          publish_branch: main
+          publish_branch: master
           publish_dir: ./public
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'
