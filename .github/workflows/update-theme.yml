@@ -22,11 +22,11 @@ jobs:
 
       - name: Update theme
         run: git submodule update --remote --merge themes/FixIt
-      
+
       - name: Change remote origin
         run: |
           git remote remove origin
-          git remote add origin https://github.com/Lruihao/hugo-blog.git
+          git remote add origin https://github.com/jianye0428/JianBlog.git
 
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v4
