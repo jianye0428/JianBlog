@@ -1,6 +1,6 @@
 ---
-title: 關於
-subtitle: Lruihao
+title: 关于我
+subtitle: Jian YE
 date: 2021-09-07T21:00:48+08:00
 comment: false
 twemoji: false
@@ -20,7 +20,7 @@ class Blog {
     this.url = url;
   }
 }
-const site = new Blog('菠菜眾長', 'Lruihao', 'https://lruihao.cn');
+const site = new Blog('Jian Blog', 'Jian YE', 'https://jianye0428.github.io');
 {{< /typeit >}}
 {{< /style >}}
 
