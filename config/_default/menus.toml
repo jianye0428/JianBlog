@@ -57,7 +57,7 @@
   identifier = "about"
   pre = ""
   post = ""
-  name = "關於"
+  name = "关于"
   url = "/about/"
   title = ""
   weight = 7
@@ -68,7 +68,7 @@
   pre = "<i class='fa-brands fa-github fa-fw' aria-hidden='true'></i>"
   post = ""
   name = ""
-  url = "https://github.com/Lruihao/hugo-blog"
+  url = "https://github.com/jianye0428/JianBlog"
   title = "GitHub"
   weight = ""
   [main.params]
