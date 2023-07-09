@@ -2,7 +2,7 @@
 title: Test another
 subtitle:
 date: 2023-07-09T17:41:40+08:00
-draft: true
+draft: false
 author:
   name:
   link:
