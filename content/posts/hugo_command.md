@@ -2,7 +2,7 @@
 title: Hugo_command
 subtitle:
 date: 2023-07-09T10:00:34+08:00
-draft: true
+draft: false
 author:
   name:
   link:
@@ -11,12 +11,12 @@ author:
 description:
 keywords:
 license:
-comment: false
+comment: true
 weight: 0
 tags:
-  - draft
+  - hugo
 categories:
-  - draft
+  - hugo
 hiddenFromHomePage: false
 hiddenFromSearch: false
 summary:
