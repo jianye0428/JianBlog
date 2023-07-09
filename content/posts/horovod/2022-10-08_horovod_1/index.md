@@ -2,7 +2,7 @@
 title: Horovod (一)
 subtitle:
 date: 2023-07-10T07:45:42+08:00
-draft: true
+draft: false
 author:
   name:
   link:
