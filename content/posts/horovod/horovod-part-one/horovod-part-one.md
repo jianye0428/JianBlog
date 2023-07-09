@@ -1,7 +1,7 @@
 ---
-title: Horovod_part_one
+title: Horovod Part One
 subtitle:
-date: 2023-07-09T18:08:53+08:00
+date: 2023-07-09T18:25:41+08:00
 draft: false
 author:
   name:
@@ -36,4 +36,10 @@ note abstract info tip success question warning failure danger bug example quote
 
 <!--more-->
 
-![](images/Horovodallreduceiter.png)
+
+add image
+
+![](images/Horovodpartone.png)
+
+
+![](images/lib.png)
