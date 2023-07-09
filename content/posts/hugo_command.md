@@ -31,7 +31,7 @@ lightgallery: false
 ---
 
 {{< admonition quote "quote" false >}}
-note abstract info tip success question warning failure danger bug example quote
+tips for hugo installation and new site creation.
 {{< /admonition >}}
 
 <!--more-->
