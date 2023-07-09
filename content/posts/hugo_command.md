@@ -4,9 +4,9 @@ subtitle:
 date: 2023-07-09T10:00:34+08:00
 draft: false
 author:
-  name:
+  name: Jian YE
   link:
-  email:
+  email: 18817571704@163.com
   avatar:
 description:
 keywords:
