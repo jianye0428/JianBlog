@@ -1,5 +1,5 @@
 ---
-title: Horovod (一)
+title: 深度学习分布式训练框架 Horovod[1] -- 基础知识
 subtitle:
 date: 2023-07-10T07:45:42+08:00
 draft: false
@@ -14,9 +14,9 @@ license:
 comment: false
 weight: 0
 tags:
-  - draft
+  - Horovod
 categories:
-  - draft
+  - Distributed Training
 hiddenFromHomePage: false
 hiddenFromSearch: false
 summary:
@@ -29,12 +29,6 @@ toc: true
 math: false
 lightgallery: false
 ---
-
-{{< admonition quote "quote" false >}}
-note abstract info tip success question warning failure danger bug example quote
-{{< /admonition >}}
-
-<!--more-->
 
 ## 0 摘要
 Horovod 是Uber于2017年发布的一个易于使用的高性能的分布式训练框架，在业界得到了广泛应用。
