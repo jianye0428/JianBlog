@@ -1,12 +1,12 @@
 ---
-title: 深度学习分布式训练框架 horovod(3) --- Horovodrun背后做了什么
+title: 深度学习分布式训练框架 horovod[3] -- Horovodrun背后做了什么
 subtitle:
 date: 2023-07-10T07:53:45+08:00
 draft: false
 author:
-  name:
+  name: Jian YE
   link:
-  email:
+  email: 18817571704
   avatar:
 description:
 keywords:

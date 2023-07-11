@@ -36,7 +36,8 @@
   # FixIt 0.2.14 | NEW Giscus comments config (https://giscus.app/)
   [page.comment.giscus]
     enable = true
-    repo = "Lruihao/hugo-blog"
+    # repo = "Lruihao/hugo-blog"
+    repo = "jianye0428/JianBlog"
     repoId = "MDEwOlJlcG9zaXRvcnk0MDQzNDY3MDk="
     category = "General"
     categoryId = "DIC_kwDOGBnXVc4CApHL"

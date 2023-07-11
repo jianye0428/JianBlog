@@ -12,7 +12,7 @@ keywords = ["李瑞豪", "李瑞豪的博客", "菠菜眾長", "博採眾長", "
 # site default theme ("light", "dark", "auto")
 defaultTheme = "auto"
 # public git repo url only then enableGitInfo is true
-gitRepo = "https://github.com/Lruihao/hugo-blog"
+gitRepo = "https://github.com/jianye0428/JianBlog"
 # FixIt NEW | 0.2.0 date format
 dateFormat = "2006-01-02"
 # website images for Open Graph and Twitter Cards
@@ -73,8 +73,7 @@ disableThemeInject = false
   # FixIt NEW | 0.2.0 Header title config
   [header.title]
     # URL of the LOGO
-    # logo = "/logo.png"
-   logo = "/images/favicon/jian_icon.png"
+    logo = "/images/favicon/jian_icon.png"
     # title name
     name = "Jian's Blog"
     # you can add extra information before the name (HTML format is supported), such as icons
@@ -351,7 +350,7 @@ disableThemeInject = false
     # Publisher info
     [page.seo.publisher]
       name = "Lruihao"
-      logoUrl = "/images/jian_icon.png"
+      logoUrl = "/images/favicon/jian_icon.png"
 
 # FixIt NEW | 0.2.5 TypeIt config
 [typeit]
@@ -380,7 +379,8 @@ disableThemeInject = false
 [watermark]
   enable = true
   # watermark's text (HTML format is supported)
-  content = '<img style="height: 0.85rem;" src="/logo.png" alt="logo" /> 李瑞豪'
+  # content = '<img style="height: 0.85rem;" src="/logo.png" alt="logo" /> 李瑞豪'
+  content = '<img style="height: 0.85rem;" src="/images/favicon/jian_icon.png" alt="logo" /> 李瑞豪'
   # watermark's transparency
   opacity = 0.0125
   # parent of watermark's container
@@ -417,9 +417,8 @@ disableThemeInject = false
 # FixIt NEW | 0.2.10 Site SEO config
 [seo]
   # image URL
-  image = "/site-meta.jpg"
+  image = "/images/favicon/jian_icon.png"
   # thumbnail URL
-  # thumbnailUrl = "/logo.png"
   thumbnailUrl = "/images/favicon/jian_icon.png"
 
 # FixIt NEW | 0.2.10 Analytics config
@@ -455,7 +454,8 @@ disableThemeInject = false
 # FixIt NEW | 0.2.14 GitHub banner in the top-right or top-left corner
 [githubCorner]
   enable = true
-  permalink = "https://github.com/Lruihao/hugo-blog"
+  # permalink = "https://github.com/Lruihao/hugo-blog"
+  permalink = "https://github.com/jianye0428/JianBlog"
   title = "在 GitHub 上查看程式碼，訂閱請點 Watch"
   position = "right" # ["left", "right"]
 

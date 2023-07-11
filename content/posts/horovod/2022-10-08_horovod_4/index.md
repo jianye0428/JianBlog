@@ -1,12 +1,12 @@
 ---
-title: 深度学习分布式训练框架 horovod(4) --- 网络基础 & Driver
+title: 深度学习分布式训练框架 horovod[4] -- 网络基础 & Driver
 subtitle:
 date: 2023-07-10T07:53:48+08:00
 draft: false
 author:
-  name:
+  name: Jian YE
   link:
-  email:
+  email: 18817571704
   avatar:
 description:
 keywords:
