@@ -256,7 +256,7 @@ disableThemeInject = false
     # whether to make the table of the contents in the sidebar automatically collapsed
     auto = true
     # FixIt NEW | 0.2.13 position of TOC ("left", "right")
-    position = "right"
+    position = "left"
   # FixIt NEW | 0.2.13 Display a message at the beginning of an article to warn the reader that its content might be expired
   [page.expirationReminder]
     enable = true
