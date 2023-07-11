@@ -194,9 +194,9 @@ disableThemeInject = false
 
 # Social config about the author
 [social]
-  GitHub = "Lruihao"
+  GitHub = "Jian YE"
   Weibo = "liahao"
-  Email = "1024@lruihao.cn"
+  Email = "18817571704@163.com"
   RSS = true
   Stackoverflow = ""
   Zhihu = ""
@@ -349,7 +349,7 @@ disableThemeInject = false
     images = []
     # Publisher info
     [page.seo.publisher]
-      name = "Lruihao"
+      name = "Jian YE"
       logoUrl = "/images/favicon/jian_icon.png"
 
 # FixIt NEW | 0.2.5 TypeIt config
