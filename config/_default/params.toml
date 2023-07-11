@@ -194,8 +194,8 @@ disableThemeInject = false
 
 # Social config about the author
 [social]
-  GitHub = "Jian YE"
-  Weibo = "liahao"
+  GitHub = "jianye0428"
+  Weibo = ""
   Email = "18817571704@163.com"
   RSS = true
   Stackoverflow = ""
