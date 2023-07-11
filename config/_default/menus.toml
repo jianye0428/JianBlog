@@ -68,7 +68,7 @@
   pre = "<i class='fa-brands fa-github fa-fw' aria-hidden='true'></i>"
   post = ""
   name = ""
-  url = "https://github.com/jianye0428/JianBlog"
+  url = "https://github.com/jianye0428/"
   title = "GitHub"
   weight = ""
   [main.params]
