@@ -16,7 +16,7 @@ weight: 0
 tags:
   - Horovod
 categories:
-  - Distributed Training
+  - Distributed Computing
 hiddenFromHomePage: false
 hiddenFromSearch: false
 summary:
