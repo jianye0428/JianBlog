@@ -42,26 +42,26 @@ Horovod 是 Uber 开源的深度学习工具，它的发展吸取了Facebook "Tr
 
 **Send/Recv:**
 
-![Send_and_recv](https://github.com/jianye0428/hello-hugo/raw/master/img/posts/notes/2022-07-27_Horovod_and_Openmpi/Horovod_and_Openmpi_send_and_recv.jpg)
+![Send_and_recv](images/Horovod_and_Openmpi_send_and_recv.jpg)
 
 ### 集合通信
 
 **Scatter/Gather**
 
-![Scatter_and_gather](https://github.com/jianye0428/hello-hugo/raw/master/img/posts/notes/2022-07-27_Horovod_and_Openmpi/Horovod_and_Openmpi_scatter_and_gather.jpg)
+![Scatter_and_gather](images/Horovod_and_Openmpi_scatter_and_gather.jpg)
 
 
 **reduce/allreduce**
 
-![reduce_and_allreduce](https://github.com/jianye0428/hello-hugo/raw/master/img/posts/notes/2022-07-27_Horovod_and_Openmpi/Horovod_and_Openmpi_reduce_and_allreduce.jpg)
+![reduce_and_allreduce](images/Horovod_and_Openmpi_reduce_and_allreduce.jpg)
 
 **boradcast/all-gather**
 
-![broadcast_and_all_gather](https://github.com/jianye0428/hello-hugo/raw/master/img/posts/notes/2022-07-27_Horovod_and_Openmpi/Horovod_and_Openmpi_broadcast_and_all_gather.jpg)
+![broadcast_and_all_gather](images/Horovod_and_Openmpi_broadcast_and_all_gather.jpg)
 
 这里在机器学习训练中使用比较多的是 **all-reduce**，场景类似在不同的 node 上跑不同 batch 的数据，然后更新梯度需要从各个汇总之后平均再回传到各自的 node 中。而这部分，有很多种实现的方式，比较直观和简单的是把所有的梯度都汇总到的某一个 node 上（如下图 node d 所示），然后再把汇总的信息重新分发到不同的 node 上 ，这样可以计算通信量，如下：对于 P 个节点，每个节点消息大小为 M，node d 节点的通信量为 2*(P-1)M，这里假设节点之间互联互通，带宽为B。
 
-![broadcast_and_all_gather](https://github.com/jianye0428/hello-hugo/raw/master/img/posts/notes/2022-07-27_Horovod_and_Openmpi/Horovod_and_Openmpi_Allreduce.jpg)
+![broadcast_and_all_gather](images/Horovod_and_Openmpi_Allreduce.jpg)
 
 
 不过这种情况下，很容易导致 **node d** 会成为性能瓶颈，因为 **node d** 需要跟其他所有 **node** 通信所以它的通信量是其他节点的 **P** 倍。假设节点间的带宽还是一样，**node d** 完成所有通信所需要的时间是 **2*(P-1)M/B**。所以现在很多的集合通信框架不会使用这种方式，更多的是**通过树状或者是环状(ring) 去实现 all-reduce**。
@@ -69,7 +69,7 @@ Horovod 是 Uber 开源的深度学习工具，它的发展吸取了Facebook "Tr
 如果只是做成树状的可以做成如下图所示，虽然传递的步数增多了，不过消除了node d 的通信瓶颈，完成所有的通信的时间大概是 **2log_2N*(M/B)**，随着节点数目 P 的增加，树形结构的效果会越来越明显。
 
 
-![broadcast_and_all_gather](https://github.com/jianye0428/hello-hugo/raw/master/img/posts/notes/2022-07-27_Horovod_and_Openmpi/Horovod_and_Openmpi_Tree_Allreduce.jpg)
+![broadcast_and_all_gather](images/Horovod_and_Openmpi_Tree_Allreduce.jpg)
 
 业界用得最多一种优化的方式是，每次只传一部分，这部分是百度提出的 ring-allreduce 的方案，具体的介绍可以参考这篇博客[Bringing HPC Techniques to Deep Learning](https://link.zhihu.com/?target=https%3A//andrew.gibiansky.com/blog/machine-learning/baidu-allreduce/)，这边就不赘述了。整体上就是每次不会像上面这样整份数据传递，而是一部分一部分传，优化后，所有节点需要传输的数据量的传输 **2(N−1)M/N** 比较平均，所需要的时间可以大概是 **2(N−1)M/(NB)**，horovod 也是基于这种 all-reduce 的形式实现的。
 
@@ -375,7 +375,7 @@ for x in range(args.num_iters):
  - BackgroundThreadLoop：是训练过程中的后台线程，主要负责跟其他节点的通信，和处理前端过来的通信需求（request），会轮询调用 RunLoopOnce，不断查看 tensor_queue 中有没有需要通信的tensor，如果有跟其他节点同步更新，然后执行通信操作。
 
 
-![Horovod Process](https://github.com/jianye0428/hello-hugo/raw/master/img/posts/notes/2022-07-27_Horovod_and_Openmpi/Horovod_and_Openmpi_Horovod_process.jpg)
+![Horovod Process](images/Horovod_and_Openmpi_Horovod_process.jpg)
 
 ### 流程分析
 

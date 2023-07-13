@@ -3,8 +3,8 @@ title: Process and Coroutine
 subtitle:
 date: 2023-07-13T08:05:28+08:00
 draft: false
-author: Jian YE
-  name:
+author:
+  name: Jian YE
   link:
   email: 18817571704@163.com
   avatar:
