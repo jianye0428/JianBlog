@@ -14,7 +14,7 @@ license:
 comment: false
 weight: 0
 tags:
-  - CUDA_C
+  - CUDA
 categories:
   - GPU
 hiddenFromHomePage: false
