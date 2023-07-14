@@ -1,5 +1,5 @@
 ---
-title: Index
+title: DPG
 subtitle:
 date: 2023-07-14T08:43:57+08:00
 draft: false
@@ -26,7 +26,7 @@ resources:
   - name: featured-image-preview
     src: featured-image-preview.jpg
 toc: true
-math: false
+math: true
 lightgallery: false
 ---
 
