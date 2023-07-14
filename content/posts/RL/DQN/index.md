@@ -1,8 +1,8 @@
 ---
-title: [RL] DQN
+title: DQN
 subtitle:
 date: 2023-07-14T08:43:42+08:00
-draft: true
+draft: false
 author:
   name: Jian YE
   link:

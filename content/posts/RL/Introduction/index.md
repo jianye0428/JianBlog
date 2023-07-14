@@ -1,5 +1,5 @@
 ---
-title: [RL] Introduction
+title: Introduction
 subtitle:
 date: 2023-07-14T08:21:32+08:00
 draft: true
