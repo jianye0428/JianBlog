@@ -1,8 +1,8 @@
 ---
-title: DPG
+title: Index
 subtitle:
-date: 2023-07-14T08:43:57+08:00
-draft: false
+date: 2023-07-15T10:24:00+08:00
+draft: true
 author:
   name:
   link:
@@ -16,7 +16,7 @@ weight: 0
 tags:
   - draft
 categories:
-  - RL
+  - draft
 hiddenFromHomePage: false
 hiddenFromSearch: false
 summary:
@@ -26,7 +26,7 @@ resources:
   - name: featured-image-preview
     src: featured-image-preview.jpg
 toc: true
-math: true
+math: false
 lightgallery: false
 ---
 
@@ -34,6 +34,4 @@ lightgallery: false
 note abstract info tip success question warning failure danger bug example quote
 {{< /admonition >}}
 
-https://zhuanlan.zhihu.com/p/337976595
-
-[DRL:DQN, PG, AC, DDPG, SAC概述](https://blog.csdn.net/weixin_43145941/article/details/110994304)
+<!--more-->
