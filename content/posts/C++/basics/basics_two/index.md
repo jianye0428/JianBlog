@@ -964,3 +964,7 @@ const的作⽤：被它修饰的值不能改变，是只读变量。必须在定
     ```
 #### 3. define 和 typedef的区别
 
+
+
+ref : https://blog.csdn.net/CSSDCC/article/details/122049204
+ref : https://zhuanlan.zhihu.com/p/513450251
