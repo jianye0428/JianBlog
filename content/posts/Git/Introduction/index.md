@@ -22,7 +22,7 @@ hiddenFromSearch: false
 summary:
 resources:
   - name: featured-image
-    src: /posts/Git/introduction/images/relation-1.png
+    src: /posts/Git/Introduction/images/relation-1.png
   - name: featured-image-preview
     src: featured-image-preview.jpg
 toc: true
