@@ -625,11 +625,11 @@
       # FixIt 0.2.14 | NEW Giscus comments config
       [params.page.comment.giscus]
         enable = true
-        repo = ""
-        repoId = ""
-        category = ""
-        categoryId = ""
-        mapping = ""
+        repo = "jianye0428/JianBlog"
+        repoId = "R_kgDOJ4kgoQ"
+        category = "General"
+        categoryId = "DIC_kwDOJ4kgoc4CX7CO"
+        mapping = "title"
         strict = "0" # FixIt NEW | 0.2.18
         term = ""
         reactionsEnabled = "1"
