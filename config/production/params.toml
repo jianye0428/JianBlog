@@ -38,9 +38,9 @@
     enable = true
     # repo = "Lruihao/hugo-blog"
     repo = "jianye0428/JianBlog"
-    repoId = "MDEwOlJlcG9zaXRvcnk0MDQzNDY3MDk="
+    repoId = "R_kgDOJ4kgoQ"
     category = "General"
-    categoryId = "DIC_kwDOGBnXVc4CApHL"
+    categoryId = "DIC_kwDOJ4kgoc4CX7CO"
     mapping = "title"
     strict = "0" # FixIt NEW | 0.2.18
     term = ""
