@@ -624,7 +624,7 @@
         katex = false
       # FixIt 0.2.14 | NEW Giscus comments config
       [params.page.comment.giscus]
-        enable = false
+        enable = true
         repo = ""
         repoId = ""
         category = ""
@@ -800,7 +800,7 @@
     light = ""
     dark = ""
     height = "2px"
-  
+
   # FixIt 0.2.17 | NEW Progress bar in the top during page loading.
   # For more information: https://github.com/CodeByZach/pace
   [params.pace]
@@ -812,7 +812,7 @@
     # ["barber-shop", "big-counter", "bounce", "center-atom", "center-circle", "center-radar", "center-simple",
     # "corner-indicator", "fill-left", "flash", "flat-top", "loading-bar", "mac-osx", "material", "minimal"]
     theme = "minimal"
-  
+
   # FixIt 0.2.17 | NEW Define custom file paths
   # Create your custom files in site directory `layouts/partials/custom` and uncomment needed files below
   [params.customFilePath]
