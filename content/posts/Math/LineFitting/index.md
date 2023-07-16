@@ -1,8 +1,8 @@
 ---
 title: Line Fitting
 subtitle:
-date: 2023-07-16T15:17:27+08:00
-draft: false
+date: 2023-07-16T15:41:48+08:00
+draft: true
 author:
   name: Jian YE
   link:
@@ -14,6 +14,7 @@ license:
 comment: false
 weight: 0
 tags:
+  - draft
 categories:
   - Math
 hiddenFromHomePage: false
@@ -25,7 +26,7 @@ resources:
   - name: featured-image-preview
     src: featured-image-preview.jpg
 toc: true
-math: true
+math: false
 lightgallery: false
 ---
 
