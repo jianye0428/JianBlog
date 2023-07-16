@@ -1,14 +1,35 @@
 ---
 title: Git 常用指令汇总
-date: 2018-10-30T8:59:56+08:00
+subtitle:
+date: 2023-07-16T10:13:29+08:00
+draft: false
+author:
+  name: Jian YE
+  link:
+  email: 18817571704@163.com
+  avatar:
+description:
+keywords:
+license:
+comment: false
+weight: 0
 tags:
   - Git
 categories:
   - Git
-featuredImage: /posts/git/images/relation-1.png
-expirationReminder:
-  enable: false
+hiddenFromHomePage: false
+hiddenFromSearch: false
+summary:
+resources:
+  - name: featured-image
+    src: /posts/Git/introduction/images/relation-1.png
+  - name: featured-image-preview
+    src: featured-image-preview.jpg
+toc: true
+math: true
+lightgallery: false
 ---
+
 
 - **工作区**：就是你在电脑里能看到的目录。
 - **暂存区**：英文叫 stage, 或 index。一般存放在 ".git 目录下" 下的 index 文件（.git/index）中，所以我们把暂存区有时也叫作索引（index）。
@@ -19,7 +40,7 @@ expirationReminder:
 
 > https://git-scm.com/
 
-先通过几张图片来大致了解一下 Git 的工作原理吧！  
+先通过几张图片来大致了解一下 Git 的工作原理吧！
 文章开头的流程图已经简单明了地说明了 Git 常用操作的工作流程，下图换种风格再展示一次：
 ![关系图](images/relation-2.jpg)
 
@@ -29,15 +50,15 @@ expirationReminder:
 下面这个图则展示了工作区、版本库中的暂存区和版本库之间的关系：
 ![工作区、暂存区和版本库](images/work.jpg)
 
-图中左侧为工作区，右侧为版本库。在版本库中标记为 `"index"` 的区域是暂存区（stage, index），标记为 "master" 的是 master 分支所代表的目录树。  
-**HEAD 指针：每个 git 仓库有且仅有一个 HEAD 指针，它通常指向當前某个活動的本地分支指针（最初本地仓库 master)。也可以是某个提交记录、某个 tag，但这会让其处于 detached HEAD（游离头）状态，此状态下的所有提交都无效。**  
-图中我们可以看出此时 `"HEAD"` 实际是指向 master 分支的一个"游标"。所以图示的命令中出现 HEAD 的地方可以用 master 来替换。  
-图中的`objects`标识的区域为 Git 的对象库，实际位于 `".git/objects"` 目录下，里面包含了创建的各种对象及内容。  
-当对工作区修改（或新增）的文件执行 `"git add"`命令时，暂存区的目录树被更新，同时工作区修改（或新增）的文件内容被写入到对象库中的一个新的对象中，而该对象的 ID 被记录在暂存区的文件索引中。  
-当执行提交操作（git commit）时，暂存区的目录树写到版本库（对象库）中，master 分支会做相应的更新。即 master 指向的目录树就是提交时暂存区的目录树。  
-当执行 `"git reset HEAD"` 命令时，暂存区的目录树会被重写，被 master 分支指向的目录树所替换，但是工作区不受影响。  
-当执行 `"git rm --cached <file>"` 命令时，会直接从暂存区删除文件，工作区则不做出改变。  
-当执行 `"git checkout ."` 或者 `"git checkout -- <file>"` 命令时，会用暂存区全部或指定的文件替换工作区的文件。这个操作很危险，会清除工作区中未添加到暂存区的改动。  
+图中左侧为工作区，右侧为版本库。在版本库中标记为 `"index"` 的区域是暂存区（stage, index），标记为 "master" 的是 master 分支所代表的目录树。
+**HEAD 指针：每个 git 仓库有且仅有一个 HEAD 指针，它通常指向當前某个活動的本地分支指针（最初本地仓库 master)。也可以是某个提交记录、某个 tag，但这会让其处于 detached HEAD（游离头）状态，此状态下的所有提交都无效。**
+图中我们可以看出此时 `"HEAD"` 实际是指向 master 分支的一个"游标"。所以图示的命令中出现 HEAD 的地方可以用 master 来替换。
+图中的`objects`标识的区域为 Git 的对象库，实际位于 `".git/objects"` 目录下，里面包含了创建的各种对象及内容。
+当对工作区修改（或新增）的文件执行 `"git add"`命令时，暂存区的目录树被更新，同时工作区修改（或新增）的文件内容被写入到对象库中的一个新的对象中，而该对象的 ID 被记录在暂存区的文件索引中。
+当执行提交操作（git commit）时，暂存区的目录树写到版本库（对象库）中，master 分支会做相应的更新。即 master 指向的目录树就是提交时暂存区的目录树。
+当执行 `"git reset HEAD"` 命令时，暂存区的目录树会被重写，被 master 分支指向的目录树所替换，但是工作区不受影响。
+当执行 `"git rm --cached <file>"` 命令时，会直接从暂存区删除文件，工作区则不做出改变。
+当执行 `"git checkout ."` 或者 `"git checkout -- <file>"` 命令时，会用暂存区全部或指定的文件替换工作区的文件。这个操作很危险，会清除工作区中未添加到暂存区的改动。
 当执行 `"git checkout HEAD ."` 或者 `"git checkout HEAD <file>"` 命令时，会用 `HEAD` 指向的 master 分支中的全部或者部分文件替换暂存区和以及工作区中的文件。这个命令也是极具危险性的，因为不但会清除工作区中未提交的改动，也会清除暂存区中未提交的改动。
 
 ## Git 配置
@@ -80,8 +101,8 @@ git push origin master      ## Git 会把 master 分支推送到远程库对应�
 ```
 
 {{< admonition tip "Tips" >}}
-[Commit Message](https://github.com/Lruihao/hugo-blog/wiki/Commit-message) 内容尽量规范！  
-当某一次提交后，突然想起漏提交了文件，或不小心提交了不满意的代码时，  
+[Commit Message](https://github.com/Lruihao/hugo-blog/wiki/Commit-message) 内容尽量规范！
+当某一次提交后，突然想起漏提交了文件，或不小心提交了不满意的代码时，
 可以使用`git commit --amend -m "message"`指令。它可以在不增加一个新的 commit-id 的情况下将新修改的代码追加到前一次的 commit-id 中。提交之后 message 也将被本次的 message 覆盖，所以还需要再次添加上次的 message。
 {{< /admonition >}}
 
@@ -116,7 +137,7 @@ git clone -b branchName reposityUrl     ## 克隆指定分支
 git pull
 ```
 
-> 从远程仓库拉下来到本地库然后合并相当于`git fetch`+`git merge`。  
+> 从远程仓库拉下来到本地库然后合并相当于`git fetch`+`git merge`。
 > 一般 push 前先拉去最新版本，避免代码冲突，如果有冲突需要解决了冲突才能提交。
 
 **import repositories 同步更新**
@@ -140,7 +161,7 @@ git fetch               ## 从远程库抓下最新版本，但是不合并
 git merge dev           ## 在当前的分支上合并 dev 分支
 ```
 
-> 分支合并也是在本地完成 (**从本地库到工作区**)，新的分支只有在合并后才允许被删除。  
+> 分支合并也是在本地完成 (**从本地库到工作区**)，新的分支只有在合并后才允许被删除。
 > 如果分支合并是出现冲突需要解决了冲突才能合并，使用`git status`查看冲突文件。
 
 ![分支合并后删除](images/delete-merge.png)
@@ -270,7 +291,7 @@ git submodule -help
 
 {{< admonition Note "Note" >}}
 当一个远程库有子模组时，直接 clone 子模组只是一个空文件夹，需要进入子模组的空文件夹`init`和`update`才行。
-或者使用递归克隆`git clone --recursive 远程库`  
+或者使用递归克隆`git clone --recursive 远程库`
 子模组更新后，父模组必须更新，因为需要更新 commit id。
 {{< /admonition >}}
 
