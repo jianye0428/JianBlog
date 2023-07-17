@@ -34,7 +34,8 @@ features = [
 
 [author]
   name = "Lruihao"
-  homepage = "https://lruihao.cn"
+  # homepage = "https://lruihao.cn"
+  homepage = "https://jianye0428.github.io"
 
 [original]
   name = "Dillon"
