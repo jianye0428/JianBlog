@@ -3,4 +3,5 @@
 # See: https://gohugo.io/getting-started/configuration/
 # -------------------------------------------------------------------------------------
 
-baseURL = "https://lruihao.cn"
+# baseURL = "https://lruihao.cn"
+baseURL = "https://jianye0428.github.io"
