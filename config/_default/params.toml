@@ -265,7 +265,7 @@ disableThemeInject = false
     # Display warning if the last modified time is more than 180 days ago
     warning = 180
     # If the article expires, close the comment or not
-    closeComment = true
+    closeComment = false
   # FixIt 0.2.16 | CHANGED KaTeX mathematical formulas
   [page.math]
     enable = true
@@ -541,7 +541,7 @@ disableThemeInject = false
 # FixIt 0.2.17 | NEW Define custom file paths
 # Create your custom files in site directory `layouts/partials/custom` and uncomment needed files below
 [customFilePath]
-  # aside = "custom/aside.html"
+  aside = "custom/aside.html"
   profile = "custom/profile.html"
   footer = "custom/footer.html"
 
