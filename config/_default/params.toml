@@ -444,9 +444,9 @@ disableThemeInject = false
 
 # FixIt NEW | 0.2.12 Busuanzi count
 [ibruce]
-  enable = false
+  enable = true
   # Enable in post meta
-  enablePost = false
+  enablePost = true
 
 # Site verification code config for Google/Bing/Yandex/Pinterest/Baidu
 [verification]
@@ -557,3 +557,10 @@ disableThemeInject = false
     enable = false
     # "vConsole", "eruda" supported
     type = "vConsole"
+
+# CDN config for third-party library files
+[cdn]
+  # CDN data file name, disabled by default ["jsdelivr.yml", "unpkg.yml", ...]
+  # located in "themes/FixIt/assets/data/cdn/" directory
+  # you can store your own data files in the same path under your project: "assets/data/cdn/"
+  # data = "unpkg.yml"
