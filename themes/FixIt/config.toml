@@ -624,7 +624,7 @@
         katex = false
       # FixIt 0.2.14 | NEW Giscus comments config
       [params.page.comment.giscus]
-        enable = true
+        enable = false
         repo = "jianye0428/JianBlog"
         repoId = "R_kgDOJ4kgoQ"
         category = "General"
