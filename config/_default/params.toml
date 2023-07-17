@@ -543,7 +543,7 @@ disableThemeInject = false
 [customFilePath]
   # aside = "custom/aside.html"
   profile = "custom/profile.html"
-  # footer = "custom/footer.html"
+  footer = "custom/footer.html"
 
 # FixIt 0.2.15 | NEW Developer options
 [dev]
