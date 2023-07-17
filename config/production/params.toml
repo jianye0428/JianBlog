@@ -41,7 +41,7 @@
     repoId = "R_kgDOJ4kgoQ"
     category = "General"
     categoryId = "DIC_kwDOJ4kgoc4CX7CO"
-    mapping = "pathname"
+    mapping = "title"
     strict = "0" # FixIt NEW | 0.2.18
     term = ""
     reactionsEnabled = "1"
