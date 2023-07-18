@@ -42,7 +42,7 @@ class Util {
   isValidDate(date) {
     return date instanceof Date && !isNaN(date.getTime());
   }
-  
+
   /**
    * scroll some element into view
    * @param {String} selector element to scroll
@@ -414,7 +414,7 @@ class FixIt {
                     finish([]);
                   });
               } else finish(search());
-            }            
+            }
           },
           templates: {
             suggestion: ({ title, date, context }) =>
@@ -1137,7 +1137,7 @@ class FixIt {
     const scrollTop = Number(window.localStorage?.getItem(`fixit-bookmark/#${location.pathname}`));
     // If the page opens with a specific hash, just jump out
     if (scrollTop && location.hash === '') {
-      window.scrollTo({ 
+      window.scrollTo({
         top: scrollTop,
         behavior: 'smooth'
       });
