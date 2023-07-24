@@ -1,5 +1,5 @@
 ---
-title: Effective STL 2 |  小心对“容器无关代码”的幻想
+title: Effective STL [2] | 小心对“容器无关代码”的幻想
 subtitle:
 date: 2023-07-20T15:58:12+08:00
 draft: false

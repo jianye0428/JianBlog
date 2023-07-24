@@ -4,9 +4,9 @@ subtitle:
 date: {{ .Date }}
 draft: true
 author:
-  name:
+  name: Jian YE
   link:
-  email:
+  email: 18817571704@163.com
   avatar:
 description:
 keywords:
@@ -26,7 +26,7 @@ resources:
   - name: featured-image-preview
     src: featured-image-preview.jpg
 toc: true
-math: false
+math: true
 lightgallery: false
 ---
 
