@@ -1,5 +1,5 @@
 ---
-title: Linux Filysystem
+title: Linux Filesystem
 subtitle:
 date: 2023-07-16T10:53:54+08:00
 draft: false
