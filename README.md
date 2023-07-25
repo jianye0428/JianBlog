@@ -1,4 +1,4 @@
-# Lruihao Blog (Hugo)
+# Jian's Blog
 
 [![Hugo](https://img.shields.io/badge/Hugo-%5E0.109.0-ff4088?style=flat&logo=hugo)](https://gohugo.io/)
 [![License](https://img.shields.io/github/license/Lruihao/hugo-blog?style=flat)](https://github.com/Lruihao/hugo-blog/blob/main/LICENSE)
@@ -7,7 +7,7 @@
 
 ![blog-flow](/assets/images/blog-flow.png)
 
-> 《菠菜眾長》，这是一个前端程序猿的技术博客, 基于 [Hugo](https://github.com/gohugoio/hugo) 和 [FixIt](https://github.com/Lruihao/FixIt) 主题搭建，主要记录和分享一些 Web 前端开发工作学习中遇到的问题和知识点。
+<!-- > 《菠菜眾長》，这是一个前端程序猿的技术博客, 基于 [Hugo](https://github.com/gohugoio/hugo) 和 [FixIt](https://github.com/Lruihao/FixIt) 主题搭建，主要记录和分享一些 Web 前端开发工作学习中遇到的问题和知识点。 -->
 
 ## Directory structure
 
