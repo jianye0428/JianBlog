@@ -16,7 +16,7 @@ weight: 0
 tags:
   - hugo
 categories:
-  - hugo
+  - Memo
 hiddenFromHomePage: false
 hiddenFromSearch: false
 summary:
