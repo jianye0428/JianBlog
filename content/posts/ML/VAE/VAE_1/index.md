@@ -2,7 +2,7 @@
 title: 变分自编码器 VAE 详解
 subtitle:
 date: 2023-07-27T10:53:41+08:00
-draft: true
+draft: false
 author:
   name: Jian YE
   link:
