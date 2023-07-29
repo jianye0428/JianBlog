@@ -2,7 +2,7 @@
 title: Effective STL [9] | 在删除选项中仔细选择
 subtitle:
 date: 2023-07-28T07:59:27+08:00
-draft: true
+draft: false
 author:
   name: Jian YE
   link:

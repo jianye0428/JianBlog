@@ -2,7 +2,7 @@
 title: Effective STL [7] | 当使用new得指针的容器时，记得在销毁容器前delete那些指针
 subtitle:
 date: 2023-07-26T18:18:11+08:00
-draft: true
+draft: false
 author:
   name: Jian YE
   link:
