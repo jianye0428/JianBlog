@@ -34,6 +34,9 @@ lightgallery: false
 note abstract info tip success question warning failure danger bug example quote
 {{< /admonition >}}
 
+ref:
+[1]. https://blog.csdn.net/cltcj/category_12098441.html
+
 <!--more-->
 # 序言
 
@@ -42,11 +45,11 @@ note abstract info tip success question warning failure danger bug example quote
 > (Effective-C++总结系列分为四部分，本文为第一部分，涉及原书第1~2章，内容范围Rule01~12。为方便书写，Rule01简写为R01)。
 
 {{< admonition Note "Effective-C++系列List" false >}}
-本博客站点系列内容如下：
-💡 Effective C++(第3版)精读总结(一)
-💡 Effective C++(第3版)精读总结(二)
-💡 Effective C++(第3版)精读总结(三)
-💡 Effective C++(第3版)精读总结(四)
+本博客站点系列内容如下：</br>
+💡 Effective C++(第3版)精读总结(一)</br>
+💡 Effective C++(第3版)精读总结(二)</br>
+💡 Effective C++(第3版)精读总结(三)</br>
+💡 Effective C++(第3版)精读总结(四)</br>
 {{< /admonition >}}
 
 # CH1.让自己习惯C++
