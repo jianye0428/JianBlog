@@ -2,7 +2,7 @@
 title: Effective C++ (第3版) 精读总结 [2]
 subtitle:
 date: 2023-07-30T17:08:51+08:00
-draft: true
+draft: false
 author:
   name: Jian YE
   link:
@@ -463,16 +463,9 @@ const Rational operator* (const Rational& lhs, const Rational& rhs) {
   ```
   {{<admonition Note "Notice">}}
   - std命名空间的函数不要尝试重载，也不要增加任何新东西
-  - C++只允许对Class-Template直接偏特化，不能对Function-Template偏特化(函数模板可以通过重载间接实现“偏特化”的作用)
-  - 成员版swap绝对不要抛出异常，非成员swap可以(因为成员swap的一个最好应用就是提供异常安全性)
+  - C++只允许对`Class-Template`直接偏特化，不能对`Function-Template`偏特化(函数模板可以通过重载间接实现“偏特化”的作用)
+  - **成员版swap绝对不要抛出异常**，非成员swap可以(因为成员swap的一个最好应用就是提供异常安全性)
   {{</admonition>}}
-
-
-
-
-
-
-
 
 ref:</br>
 [1]. https://blog.csdn.net/cltcj/category_12098441.html</br>
