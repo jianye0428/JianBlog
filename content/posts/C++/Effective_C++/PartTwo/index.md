@@ -42,7 +42,7 @@ note abstract info tip success question warning failure danger bug example quote
 {{< admonition Note "Effective-C++系列List" false >}}
 本博客站点系列内容如下：</br>
 💡 [Effective C++(第3版)精读总结(一)](https://jianye0428.github.io/posts/partone/)</br>
-💡 Effective C++(第3版)精读总结(二)(https://jianye0428.github.io/posts/parttwo/)</br>
+💡 [Effective C++(第3版)精读总结(二)](https://jianye0428.github.io/posts/parttwo/)</br>
 💡 Effective C++(第3版)精读总结(三)</br>
 💡 Effective C++(第3版)精读总结(四)</br>
 {{< /admonition >}}
@@ -303,7 +303,7 @@ processWidget(pw,priority());
     //乘积不相等，走else分支
   }
   ```
-{{<admonition> Note "Tips"}}
+{{<admonition Note "Tips">}}
 > 那是不是永远不能以reference作为返回值呢 ？
 > 当然不是，*this可以返回其引用，参考Rule10；或者类成员作为返回值时，可以返回其引用，但最好是const。
 {{</admonition>}}
