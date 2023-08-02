@@ -14,9 +14,10 @@ license:
 comment: false
 weight: 0
 tags:
-  - draft
+  - Effective
+  - STL
 categories:
-  - draft
+  - C++
 hiddenFromHomePage: false
 hiddenFromSearch: false
 summary:
@@ -35,7 +36,6 @@ note abstract info tip success question warning failure danger bug example quote
 {{< /admonition >}} -->
 
 <!--more-->
-
 
 ## 自定义分配器
 
