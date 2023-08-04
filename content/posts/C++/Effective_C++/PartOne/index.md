@@ -51,10 +51,10 @@ lightgallery: false
 
 如今的C++已经是个多重范式(multiparadigm)语言，同时支持面向过程形式、面向对象形式、函数形式、泛型形式、元编程形式。 要理解这么多特性，可以简单的归结为`四种次语言`(sublanguage)组成：
 
-- **C语言：**`C++仍以C为基础`。C++是C的超集，仍然以 C 为基础。<font color=green>区块</font>、<font color=green>语句</font>、<font color=green>预处理器</font>、<font color=green>内置数据类型</font> 、<font color=green>数组</font>、<font color=green>指针</font>等统统来自C，许多时候C++对问题的解决其实不过就是较高级的 C 解法，但当你C++内的 C 成分工作时，高效编程守则映照出 C 语言的局限：没有模板(template) ，没有异常(exceptions)，没有重载(overloading)……
-- **Object-Oriented C++:** 面向对象特性。这部分也就是 C with classes 所诉求的：**classes**(包括构造函数和析构函数)，**封装**(encapsulation)、**继承**(inheritance)、**多态**(polymorhpism)、**virtual函数**(动态绑定)……等等，这一部分是面向对象设计之古典守则在C++ 上的直接实施。
+- **C语言:** `C++仍以C为基础`。C++是C的超集, 仍然以 C 为基础。<font color=green>区块</font>、<font color=green>语句</font>、<font color=green>预处理器</font>、<font color=green>内置数据类型</font> 、<font color=green>数组</font>、<font color=green>指针</font>等统统来自C，许多时候C++对问题的解决其实不过就是较高级的 C 解法，但当你C++内的 C 成分工作时，高效编程守则映照出 C 语言的<font color=red>局限</font>：没有模板(template) ，没有异常(exceptions)，没有重载(overloading)……
+- **Object-Oriented C++:** 面向对象特性。这部分也就是 C with classes 所诉求的: **classes**(包括构造函数和析构函数)，**封装**(encapsulation)、**继承**(inheritance)、**多态**(polymorhpism)、**virtual函数**(动态绑定)……等等，这一部分是面向对象设计之古典守则在C++ 上的直接实施。
 - **Template C++:** C++的泛型(generic)编程的部分，也带来了黑魔法-模板元编程(TMP,Metaprogramming)；
-- **STL:** STL(Standard Temlate Library)即标准模板库，它是template程序库。封装了各类容器(container)、配置器(allocator)、迭代器(iterator)、算法以及常用对象。
+- **STL：** STL(Standard Temlate Library)即标准模板库，它是template程序库。封装了各类容器(container)、配置器(allocator)、迭代器(iterator)、算法以及常用对象。
 
 **总结:**
 C++高效编程守则视状况而变化，取决于你使用C++的哪一部分
@@ -326,7 +326,7 @@ public:
   该主流协议/做法不是强制性的，只是个建议，因为这样可以允许**连续赋值**($x=y=z$的形式)。</br>
   该协议被内置类型，以及STL的类型(如string,vector,complex,shared_ptr)共同遵守。</br>
 
-## R11 在`operator=`中处理"自我赋值"
+### R11 在`operator=`中处理"自我赋值"
 
 一个对象赋值给自己，这种看起来有点傻的做法，有时候会比较难以发觉。比如：`a[i] = a[j]`，如果 $i$ 和 $j$ 相等，就是“自我赋值”的经典场景了。
 所以，我们需要一个尽量完备的赋值操作符函数🤔。
@@ -395,6 +395,6 @@ public:
 - 不要用一个Copying函数去实现另一个
 令copy-assignment操作符调用copy构造函数是不合理的；反之，后者调用前者也是无意义的。 如果2者有大量的代码是相同的，可以剥离一个类内private类型的`init`函数出来，提供给上述2者调用。
 
-ref:</br>
+## ref:</br>
 [1]. https://blog.csdn.net/cltcj/category_12098441.html</br>
 [2]. https://kissingfire123.github.io/2021/12/06_effective-c-%e4%b9%8b%e5%ad%a6%e4%b9%a0%e6%80%bb%e7%bb%93%e4%b8%80/</br>
