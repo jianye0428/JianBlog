@@ -422,7 +422,7 @@ disableThemeInject = false
   enable = true
   # watermark's text (HTML format is supported)
   # content = '<img style="height: 0.85rem;" src="/logo.png" alt="logo" /> 李瑞豪'
-  content = '<img style="height: 0.85rem;" src="/images/favicon/jian_icon.png" alt="logo" /> 李瑞豪'
+  content = '<img style="height: 0.85rem;" src="/images/favicon/jian_icon.png" alt="logo" /> jianye'
   # watermark's transparency
   opacity = 0.0125
   # parent of watermark's container
