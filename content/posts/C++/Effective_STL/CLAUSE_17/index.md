@@ -14,7 +14,7 @@ license:
 comment: false
 weight: 0
 tags:
-  - Effective
+  - Effective STL
 categories:
   - C++
 hiddenFromHomePage: false
