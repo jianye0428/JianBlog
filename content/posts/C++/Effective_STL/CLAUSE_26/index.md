@@ -1,5 +1,5 @@
 ---
-title:  Effective STL [26] | 尽量用iterator代替const_iterator，reverse_iterator和const_reverse_iterator
+title: Effective STL [26] | 尽量用iterator代替const_iterator，reverse_iterator和const_reverse_iterator
 subtitle:
 date: 2023-08-16T19:06:25+08:00
 draft: false
