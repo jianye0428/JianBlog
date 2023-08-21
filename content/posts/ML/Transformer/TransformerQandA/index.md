@@ -2,7 +2,7 @@
 title: Transformer Q & A
 subtitle:
 date: 2023-08-21T07:59:36+08:00
-draft: true
+draft: false
 author:
   name: Jian YE
   link:
@@ -14,9 +14,9 @@ license:
 comment: false
 weight: 0
 tags:
-  - draft
+  - Transformer
 categories:
-  - draft
+  - ML
 hiddenFromHomePage: false
 hiddenFromSearch: false
 summary:

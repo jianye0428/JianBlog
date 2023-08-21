@@ -16,7 +16,7 @@ weight: 0
 tags:
   - Transformer
 categories:
-  - draft
+  - ML
 hiddenFromHomePage: false
 hiddenFromSearch: false
 summary:
