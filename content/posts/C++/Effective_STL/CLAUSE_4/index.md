@@ -2,7 +2,7 @@
 title: Effective STL [4] | 用empty来代替检查size()是否为0
 subtitle:
 date: 2023-07-24T13:15:46+08:00
-draft: true
+draft: false
 author:
   name: Jian YE
   link:

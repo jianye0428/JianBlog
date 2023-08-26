@@ -14,9 +14,9 @@ license:
 comment: false
 weight: 0
 tags:
-  - draft
+  - Effective STL
 categories:
-  - draft
+  - C++
 hiddenFromHomePage: false
 hiddenFromSearch: false
 summary:
@@ -29,12 +29,6 @@ toc: true
 math: true
 lightgallery: false
 ---
-
-<!-- {{< admonition quote "quote" false >}}
-note abstract info tip success question warning failure danger bug example quote
-{{< /admonition >}} -->
-
-<!--more-->
 
 ## 函数声明的几种方式
 
