@@ -105,7 +105,6 @@ public:
 }
 ```
 
-
 ## R39 确保判别式是 “纯函数”
 
 **判别式（predicate）：一个返回值为 bool 类型的函数。**
@@ -118,7 +117,7 @@ STL 中凡是可以接受一个判别式类对象的地方，也就可以接受�
 
 判别式应该是一个纯函数，而纯函数应该没有状态。
 
-# R40 使仿函数类可适配
+## R40 使仿函数类可适配
 
 对函数指针，要先应用`ptr_fun`之后再应用`not1`之后才可以工作。
 
@@ -148,6 +147,41 @@ struct WidgetNameCompare:					// STL中所有无状态函数子类一般都被�
 注意，一般情况下，传递给 binary_function 或 unary_function 的非指针类型需要去掉 const 和应用（&）部分。
 
 
+## R41 理解 ptr_fun、mem_fun 和 mem_fun_ref 的来由
+
+STL语法惯例：函数或者函数对象被调用时，总是使用非成员函数的语法形式。
+
+```c++
+for_each(vw.begin(), vw.end(), test);					// 调用1：f(x)，f为非成员函数
+for_each(vw.begin(), vw.end(), &Widget::test);			// 调用2：x.f()，f为成员函数
+														// x是一个对象或对象的引用
+list<Widget *> lpw;
+for_each(lpw.begin(), lpw.end(), &Widgettest);			// 调用3：p->f()，f为成员函数
+														// p是一个指向对象x的指针。
+```
+mem_fun、mem_fun_t：mem_fun 将语法 3 调整为语法 1。
+
+```c++
+template<typename R, typename C>		//该mem_fun声明针对不带参数的非const成员函数
+mem_fun_t<R,C>							//C是类，R是所指向的成员函数返回的类型。
+mem_fun(R(C::*pmf));
+```
+
+mem_fun 带一个指向某个成员函数的指针参数 pmf，并且返回一个 mem_fun_t 类型的对象。
+
+mem_fun_t 是一个函数子类，它拥有该成员函数的指针，并提供了 operator() 函数，在 operator() 中调用了通过参数传递进来的对象上的该成员函数。
+
+类似地，mem_fun_ref 将语法 2 调整为语法 1。
+
+**总结:**
+- std::ptr_fun：将函数指针转换为函数对象。
+- std::mem_fun：将成员函数转换为函数对象(指针版本)。
+- std::mem_fun_ref：将成员函数转换为函数对象(引用版本)。
+
+## R42
+
 Ref:
 
 [1]. https://www.cnblogs.com/Sherry4869/p/15162253.html
+[2]. https://blog.csdn.net/zhuikefeng/article/details/108164117#t35
+[3]. https://zhuanlan.zhihu.com/p/458156007

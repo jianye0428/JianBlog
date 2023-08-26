@@ -154,7 +154,7 @@ Linear + softmax: softmax是预测下一个词出现的概率，如图7所示，
 
 7.3 实现方式:  最简单的embedding操作就是one hot vector，但one hot vector有一个弊端就是没有考虑词语前后之间的关系，后来也就产生了WordEmbedding，如图13。
 
-{{<admoniton Note "Note">}}
+{{<admonition Note "Note">}}
 wordembedding将单词token向量化，并且考虑的单词与单词之间的相关性。
 {{</admonition>}}
 
