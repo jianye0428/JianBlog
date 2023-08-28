@@ -14,9 +14,9 @@ license:
 comment: true
 weight: 0
 tags:
-  - draft
+  - Effective STL
 categories:
-  - draft
+  - C++
 hiddenFromHomePage: false
 hiddenFromSearch: false
 summary:
