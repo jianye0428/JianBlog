@@ -1,7 +1,7 @@
 ---
-title: {{ replace .TranslationBaseName "-" " " | title }}
+title: Index
 subtitle:
-date: {{ .Date }}
+date: 2023-08-22T09:03:25+08:00
 draft: true
 author:
   name: Jian YE
@@ -28,5 +28,12 @@ resources:
 toc: true
 math: true
 lightgallery: false
-pagestyle: wide
 ---
+
+Attention
+
+Self Attention
+
+Local Attention
+
+Stride Attention
