@@ -1,5 +1,5 @@
 ---
-title: Blog for reference
+title: Web Memo
 subtitle:
 date: 2023-08-01T19:26:58+08:00
 draft: true
@@ -16,7 +16,7 @@ weight: 0
 tags:
   - draft
 categories:
-  - draft
+  - Memo
 hiddenFromHomePage: false
 hiddenFromSearch: false
 summary:
@@ -37,3 +37,6 @@ note abstract info tip success question warning failure danger bug example quote
 <!--more-->
 
 https://kissingfire123.github.io/
+
+https://iyuantiao.me
+www.freewhale.lol

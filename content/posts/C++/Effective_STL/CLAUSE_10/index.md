@@ -2,7 +2,7 @@
 title: Effective STL [10] | 注意分配器的协定和约束
 subtitle:
 date: 2023-07-29T15:38:00+08:00
-draft: true
+draft: false
 author:
   name: Jian YE
   link:
@@ -29,12 +29,6 @@ toc: true
 math: true
 lightgallery: false
 ---
-
-<!-- {{< admonition quote "quote" false >}}
-note abstract info tip success question warning failure danger bug example quote
-{{< /admonition >}} -->
-
-<!--more-->
 
 ## 分配器
 
