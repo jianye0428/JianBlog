@@ -2,7 +2,7 @@
 title: More Effective C++ 阅读笔记
 subtitle:
 date: 2023-09-06T19:40:01+08:00
-draft: true
+draft: false
 author:
   name: Jian YE
   link:
@@ -323,7 +323,55 @@ public:
 
 4. 总结允许编译器执行隐式转换弊大于利，所以**非必要不要提供转换函数**！
 
+### 条款6: 区别 increment/decrement 操作符的前置和后置形式s
 
+1. 由于 increment/decrement 操作符的前置和后置式都是一元运算符，没有参数。因此重载时通过在后置式中加一个 int 型参数(哑元参数)加以区分，当后置式被调用时，编译器自动在为该参数指定一个0值。
+
+```c++
+class UPInt{
+public:
+    UPInt& operator++();          // 前置式++
+    const UPInt operator++(int);  // 后置式++
+    UPInt& operator--();          // 前置式--
+    const UPInt operator++(int);  // 前置式--
+}
+```
+前置累加操作符和后置累加操作符实现:
+```c++
+// 前缀形式：增加然后取回值
+UPInt& UPInt::operator++()
+{
+*this += 1; // 增加
+return *this; // 取回值
+}
+// postfix form: fetch and increment
+const UPInt UPInt::operator++(int)
+{
+UPInt oldValue = *this;
+++(*this);
+// 取回值
+// 增加
+return oldValue;
+// 返回被取回的值
+}
+```
+
+**前置式返回 reference，后置式返回 const 对象！**
+
+后置 operator++(int) 的叠加是不允许的，即：i++++。
+
+原因有两个：一是与内建类型行为不一致(内建类型支持前置叠加)；二是其效果跟调用一次 operator++(int) 效果一样，这是违反直觉的。另外，后置式操作符使用 operator++(int)，参数的唯一目的只是为了区别前置式和后置式而已，当函数被调用时，编译器传递一个0作为int参数的值传递给该函数。
+
+
+
+2. 处理用户定制类型时，应该尽可能使用前置式。
+3. 后置式increment 和decrement 操作符的实现应以其前置式兄弟为基础。如此一来你就只需维护前置式版本，因为后置式版本会自动调整为一致的行为。
+
+<iframe
+	height=500 width=100%
+	src="https://player.youku.com/embed/XMzY0MzgxNDMyOA=="
+	frameborder=0 allowfullscreen>
+</iframe>
 
 Ref:</br>
 [1]. [More Effective C++](https://hr-insist.github.io/C/More_Effective_C++%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/)
