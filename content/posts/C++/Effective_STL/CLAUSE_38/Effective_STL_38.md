@@ -1,5 +1,5 @@
 ---
-title: Effective STL [37] | 把仿函数类设计为用于值传递
+title: Effective STL [38] | 把仿函数类设计为用于值传递
 subtitle:
 date: 2023-09-06T17:28:31+08:00
 draft: false
