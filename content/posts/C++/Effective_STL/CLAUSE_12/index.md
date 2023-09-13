@@ -1,5 +1,5 @@
 ---
-title: Effective STL [12] | 理解自定义分配器的正确用法
+title: Effective STL [12] | 对STL容器线程安全性的期待现实一些
 subtitle:
 date: 2023-08-02T08:03:42+08:00
 draft: false
@@ -30,12 +30,6 @@ toc: true
 math: true
 lightgallery: false
 ---
-
-<!-- {{< admonition quote "quote" false >}}
-note abstract info tip success question warning failure danger bug example quote
-{{< /admonition >}} -->
-
-<!--more-->
 
 ## 多线程维护的规则
 
