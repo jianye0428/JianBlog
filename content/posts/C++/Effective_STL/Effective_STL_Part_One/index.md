@@ -1,8 +1,8 @@
 ---
-title: Effective STL 精读总结 [5] | 算法
-subtitle: Rule 30 - 37
-date: 2023-08-19T10:28:18+08:00
-draft: true
+title: Effective STL 精读总结 [1] | 容器
+subtitle:
+date: 2023-09-01T08:38:45+08:00
+draft: false
 author:
   name: Jian YE
   link:
@@ -32,7 +32,7 @@ lightgallery: false
 
 # 前言
 
-> Effective-STL总结系列分为七部分，本文为第五部分，涉及原书第五章，内容范围Rule30~37。为方便书写，Rule30简写为R30。
+> Effective-STL总结系列分为七部分，本文为第一部分，涉及原书第一章，内容范围Rule01~12。为方便书写，Rule12简写为R12。
 
 {{< admonition Note "Effective-STL系列List" false >}}
 本博客站点系列内容如下：</br>
@@ -42,241 +42,283 @@ lightgallery: false
 💡 [Effective STL(第3版)精读总结(四)](https://jianye0428.github.io/posts/partfour/)</br>
 {{< /admonition >}}
 
-<!-- 由于原书在C++11之前写成，有些现代C++特性不会提及，所以会根据本人`开发经验`新增一些个人感悟👉`By the way`环节。 -->
+## R01 慎重选择容器类型
 
-## R30 确保目标区间足够大。(inserter)
+STL 容器不是简单的好，而是确实很好。
 
-**transform 算法**：使用 front_inserter 将导致算法将结果插入到容器的头部，使用 back_inserter 将导致算法将结果插入到容器的尾部。
+容器类型如下：
+  - 标准 STL 序列容器：`vector`、`string`、`deque`、`list`。
+  - 标准 STL 关联容器：`set`、`multiset`、`map`、`multimap`。
+  - 非标准序列容器 `slist` 和 `rope`。`slist` 是一个单向链表，`rope` 本质上是一个 "重型" `string`。
+  - 非标准的关联容器：`hash_set`、`hash_multiset`、`hash_map`、`hash_multimap`。
+  - `vector` 作为 `string` 的替代。
+  - `vector` 作为标准关联容器的替代：有时 `vector` 在运行时间和空间上都要优于标准关联容器。
+  - 几种标准的非 STL 容器：`array`、`bitset`、`valarray`、`stack`、`queue`、`priority_queue`。
 
-  1. 向容器末尾添加新的对象(S使用 back_inserter，适用于所有提供了 push_back 方法的容器(vector,string,deque,list)):
-     ```c++
-     int transmogrify(int x)							// 该函数根据x生成一个新的值
-     vector<int> results;
-     transform(values.begin(), values.end(),			// 将     transmogrify作用在values的每个对象上
-         back_inserter(results), 				// 并将返回值插入到resultes的末尾。
-         transmogrify);
-     ```
-  2. 向容器前面添加新的对象(使用 front_inserter，适用于所有提供了 push_front 方法的容器):
-     ```c++
-     int transmogrify(int x)							// 该函数根据x生成一个新的值
-     list<int> results;
-     transform(values.begin(), values.end(),			// 将transmogrify作用在values的每个对象上
-        front_inserter(results), 				// 并将返回值以逆向顺序
-         transmogrify);							// 插入到resultes的头部，
-     ```
-  3. 将 transform 的输出结果存放在 results 的前端，同时保留它们在 values 中原有的顺序，只需按照相反方向遍历 values 即可:
-     ```c++
-      int transmogrify(int x)							// 该函数根据x生成一个新的值
-      list<int> results;
-      transform(values.rbegin(), values.rend(),		// 将transform的结果插入到容器头部，
-        front_inserter(results), 				// 并保持相对顺序。
-         transmogrify);
-     ```
-  4. 将 transform 的结果插入到容器中特定位置上:
-     ```c++
-     int transmogrify(int x)							// 该函数根据x生成一个新的值
-     list<int> results;
-     transform(values.rbegin(), values.rend(),
-        inserter(results, results.begin()+results.size()/2),
-         transmogrify);							// 将transform的结果插入到容器中间的位置
-     ```
-  5. 如果使用 transform 要覆盖原来的元素，第三个参数可以使用迭代器。
+容器选择标准:
+  1. vector、list和deque有着不同的复杂度，vector是默认使用的序列类型。当需要频繁在序列中间做插入和删除操作时，应使用list。当大多数插入和删除操作发生在序列的头部和尾部时，应使用deque。
+  2. 可以将容器分为连续内存容器和基于节点的容器两类。连续内存容器把元素存放在一块或多块(动态分配的)内存中，当有新元素插入或已有的元素被删除时，同一块内存中的其他元素要向前或向后移动，以便为新元素让出空间，或者是填充被删除元素所留下的空隙。这种移动会影响到效率和异常安全性。标准的连续内存容器有vector、string和deque，非标准的有rope。
+  3. 基于节点的容器在每一个(动态分配的)内存块中只存放一个元素。容器中元素的插入或删除只影响指向节点的指针，而不影响节点本身，所以插入或删除操作时元素是不需要移动的。链表实现的容器list和slist是基于节点的，标准关联容器也是(通常的实现方式是平衡树)，非标准的哈希容器使用不同的基于节点的实现。
+  4. 是否需要在容器的任意位置插入新元素？需要则选择序列容器，关联容器是不行的。
+  5. 是否关心容器中的元素是如何排序的？如果不关心，可以选择哈希容器，否则不能选哈希容器(unordered)。
+  6. 需要哪种类型的迭代器？如果是随机访问迭代器，那就只能选择vector、deque和string。如果使用双向迭代器，那么就不能选slist和哈希容器。
+  7. 是否希望在插入或删除元素时避免移动元素？如果是，则不能选择连续内存的容器。
+  8. 容器的数据布局是否需要和C兼容？如果需要只能选`vector`。
+  9. 元素的查找速度是否是关键的考虑因素？如果是就考虑哈希容器、排序的`vector`和标准关联容器。
+  10. 是否介意容器内部使用引用计数技术，如果是则避免使用`string`，因为`string`的实现大多使用了引用计数，可以考虑用`vector<char>`替代。
+  11. 对插入和删除操作需要提供事务语义吗？就是说在插入和删除操作失败时，需要回滚的能力吗？如果需要则使用基于节点的容器。如果是对多个元素的插入操作(针对区间)需要事务语义，则需要选择`list`，因为在标准容器中，只有`list`对多个元素的插入操作提供了事务语义。对希望编写异常安全代码的程序员，事务语义尤为重要。使用连续内存的容器也可以获得事务语义，但是要付出性能上的代价，而且代码也不那么直截了当。
+  12. 需要使迭代器、指针和引用变为无效的次数最少吗？如果是则选择基于节点的容器，因为对这类容器的插入和删除操作从来不会使迭代器、指针和引用变成无效(除非它们指向一个正在删除的元素)。而对连续内存容器的插入和删除一般会使得指向该容器的迭代器、指针和引用变为无效。
 
-要在算法执行过程中增大目标区间，请使用**插入型迭代器**，比如 `ostream_interator`、`back_inserter`、`front_inserter`。
+## R02 不要试图编写独立于容器类型的代码
 
-## R31 与排序有关的的选择。(sort相关)
+1. 容器是以类型作为参数的，而试图把容器本身作为参数，写出独立于容器类型的代码是不可能实现的。因为不同的容器支持的操作是不同的，即使操作是相同的，但是实现又是不同的，比如带有一个迭代器参数的erase作用于序列容器时，会返回一个新的迭代器，但作用于关联容器则没有返回值。这些限制的根源在于，对于不同类型的序列容器，使迭代器、指针和引用无效的规则是不同的。
 
-1. 如果需要对 `vector`、`string`、`deque` 或者数组中的元素执行一次完全排序，可以使用 `sort` 或 `stable_sort`。
+2. 有时候不可避免要从一个容器类型转到另一种，可以使用封装技术来实现。最简单的方式是对容器类型和其迭代器类型使用typedef，如`typedef vector<Widget> widgetContainer`; `typedef widgetContainer::iterator WCIterator`; 如果想减少在替换容器类型时所需要修改的代码，可以把容器隐藏到一个类中，并尽量减少那些通过类接口可见的、与容器有关的信息。
 
-2. 如果有一个 `vector`、`string`、`deque` 或者数组，并且只需要对等价性最前面的 n 个元素进行排序，那么可以使用 **partial_sort**。
+**一种容器类型转换为另一种容器类型：typedef**
+```c++
+class Widget{...};
+typedef vector<Widget> WidgetContainer;
+WidgetContainer cw;
+Widget bestWidget;
+...
+WidgetContainer::iterator i = find(cw.begin(), cw.end(), bestWidget);
+```
+这样就使得改变容器类型要容易得多，尤其当这种改变仅仅是增加一个自定义得分配子时，就显得更为方便（这一改变不影响使迭代器/指针/引用无效的规则）。
 
-3. 如果有一个 `vector`、`string`、`deque` 或者数组，并且需要找到第 n 个位置上的元素，或者，需要找到等价性最前面的 n 个元素但又不必对这 n 个元素进行排序，可以使用 `nth_element`。
+## R03 确保容器中的对象拷贝正确而高效
+- 存在继承关系的情况下，拷贝动作会导致**剥离**（slicing）: 如果创建了一个存放基类对象的容器，却向其中插入派生类对象，那么在派生类对象（通过基类的拷贝构造函数）被拷贝进容器时，它所特有的部分（即派生类中的信息）将会丢失。
+  ```c++
+  vector<Widget> vw;
+  class SpecialWidget:			// SpecialWidget 继承于上面的 Widget
+    public Widget{...};
+  SpecialWidget sw;
+  vw.push_back();					// sw 作为基类对象被拷贝进 vw 中
+                  // 它的派生类特有部分在拷贝时被丢掉了
+  ```
+- **剥离意味着向基类对象中的容器中插入派生类对象几乎总是错误的**。
+- 解决剥离问题的简单方法：<u>使容器包含指针而不是对象</u>。
 
-4. 将一个标准序列容器中的元素按照是否满足某个条件区分开来，使用 `partition` 和 `stable_partition`。
+1. 容器中保存的对象，并不是你提供给容器的那些对象。从容器中取出对象时，也不是容器中保存的那份对象。当通过如insert或push_back之类的操作向容器中加入对象时，存入容器的是该对象的拷贝。当通过如front或back之类的操作从容器中 取出对象时，所得到的是容器中对象的拷贝。进去会拷贝，出来也是拷贝，这就是STL的工作方式。
+2. 当对象被保存到容器中，它经常会进一步被拷贝。当对vector、string或deque进行元素的插入或删除时，现有元素的位置通常会被移动（拷贝）。如果使用下列任何算法，next_permutation或previous_permutation，remove、unique，rotate或reverse等等，那么对象将会被移动（拷贝），这就是STL的工作方式。
+3. 如果向容器中填充的对象拷贝操作很费时，那么向容器中填充对象这一简单操作将会成为程序的性能瓶颈。而且如果这些对象的拷贝有特殊含义，那么把它们放入容器还将不可避免地会产生错误。
+4. 当存在继承关系时，拷贝动作会导致剥离。也就是说，如果创建了一个存放基类对象的容器，却向其中插入派生类的对象，那么派生类对象（通过基类的拷贝构造函数）被拷贝进容器时，它派生类的部分将会丢失。
+5. 使拷贝动作高效、正确，并防止剥离问题发生的一个简单办法就是使容器包含对象指针，而不是对象本身。拷贝指针的速度非常快，而且总是会按你期望的方式进行。如果考虑资源的释放，智能指针是一个很好的选择。
 
-5. `sort`、`stable_sort`、`partial_sort`、`nth_element` 算法都要求随机访问迭代器，所以这些算法只能用于 `vector`、`string`、`deque` 和数组。
+## R04 调用 empty 而不是检查 size()是否为0
 
-6. 对于 `list`，可以使用 `partition` 和 `stable_partition`，可以用 `list::sort` 来替代 `sort` 和 `stable_sort` 算法。
+- `empty` 通常被实现为内联函数（inline function），并且它做的仅仅是返回 size() 是否为 0.
+- `empty` 对所有标准容器都是常数时间操作，而对于一些 list 实现，size 耗费线性时间
 
-7. 实现 `partial_sort` 和 `nth_element`，需要通过间接途径。
+## R05 区间成员函数优先于与之对应的单元素成员函数
 
-8. 性能排序：`partition` > `stable_partion` > `nth_element` > `partial_sort` > `sort` > `stable_sort`
+1. **区间成员函数是使用两个迭代器参数来确定成员操作执行的区间，像STL算法一样**。区间成员函数和for循环处理单元素成员函数在功能上是相同的，但是在效率和代码清晰度上要更胜一筹。如将一个元素插入到vector中，而它的内存满了，那么vector将申请更大容量的内容，把它的元素从旧内存拷贝到新内存，销毁旧内存中的元素，并释放旧内存，再把要插入的元素插入进来，因此插入n个新元素最多可导致次新内存的分配。
+2. 几乎所有通过插入迭代器(即利用`inserter`、`back_inserter`或`front_inserter`)来操作目标区间的copy调用，都可以应该被替换为对区间成员函数的调用。
+3. 对于**区间创建**，所有的标准容器都提供了如下形式的构造函数：`container::container(InputIterator begin, InputIterator end)`;
+4. 对于**区间插入**，所有的标准序列容器都提供了如下形式的insert：`void container::insert(iterator position, InputIterator begin, InputIterator end)`;表示在position位置插入begin到end的元素。关联容器利用比较函数决定元素的插入位置，所以不需要提供插入位置：`void container::insert(InputIterator begin, InputIterator end)`;
+5. 对于**区间删除**，所有的标准容器都提供了区间形式的erase操作，但是对于序列容器和关联容器，其返回值不同。序列容器提供了如下的形式：`iterator container::erase(iterator begin, iterator end)`;而关联容器则提供了如下形式：`void container::erase(iterator begin, iterator end)`;为什么会有这种区别呢？据说是关联容器的erase如果返回迭代器（指向被删除元素之后的元素）会导致不可接受的性能负担。
+6. 对于**区间赋值**，所有的标准容器都提供了区间形式的`assign：void container::assign(InputIterator begin, InputIterator end)`;
+
+## R06 当心C++编译器最烦人的分析机制
+
+分析这样一段程序：有一个存有整数的文件，你想把这些整数拷贝到一个list中
+```c++
+ifstream dataFile("ints.dat");
+list<int> data(istream_iterator<int>(dataFile), istream_iterator<int>());//小心！结果不会是你期望的那样
+```
+
+这样做的思路是把一对istream_iterator传入到list的区间构造函数，从而把文件中的整数拷贝到list中，这段代码可以通过编译，但是在运行时什么也不会做，它也不会创建list，这是因为第二条语句并没有声明创建一个list。
+
+从最基本的说起，`int f(double d);`声明了一个接收double参数，返回int的函数，下面两种形式是做了同样的事：`int f(double (d))`;还有`int  f(double)`;再看`int g(double (*pf)())`;声明了一个函数g，参数是一个函数指针，这个函数指针不接受参数，返回值是double，下面两种形式同样是做了这样的事，int g(double pf());还有int g(double ())，第三种形式省略了函数名，double后有一个空格和()，表示这是一个函数指针。
+
+再来看最开始的例子，第二行其实不是声明了一个变量，而是声明了一个函数，其返回值是list<int>，第一个参数名称是dataFile，类型是istream_iterator<int>，dataFile两边的括号是多余的，会被忽略。第二个参数没有名称，类型是指向不带参数的函数的指针，该函数返回一个istream_iterator<int>。
+
+这符合C++中一个普遍规律，尽可能地解释为函数声明，比如这样一段代码，`class Widget{ ... };` `Widget w();`它并没有声明一个Widget类型的对象w，而是声明了一个名为w的函数。学会识别这类言不达意是成为C++程序员的必经之路。
+
+而为了实现最开始那段代码想要实现的功能，可以为第一个参数参数加上一对括号，即`list<int> data((istream_iterator<int>(dataFile)), istream_iterator<int>())`;不幸地是，并不是所有编译器都知道这一点，几乎有一半都会拒绝上述正确的声明形式，而接收最开始错误的声明形式。更好的方式是在data声明中避免使用匿名的istream_iterator对象，将那句代码分成三句来写。
 
 
-## R32 如果确实需要删除元素，则需要在 remove 这一类算法之后调用 erase。
+## R07 如果容器中包含了通过new操作创建的指针，切记在容器对象析构前将指针delete掉
 
-remove 是泛型算法，不接受容器作为参数，它不知道元素被存放在哪个容器中，也不可能推断出是什么容器(因为无法从迭代器推知对应的容器类型)。只有容器的成员函数才可以删除容器中的元素。
+STL容器很智能，但是还没有智能到知道是否该释放自己所包含的指针的程度。当你使用指针的容器，而其中的指针应该被删除时，为了避免资源泄露，你应该使用引用计数形式的智能指针（如shared_ptr）代替指针（普通指针不具有异常安全性），或者当容器被析构时手动删除其中的每个指针。
 
-> 因为删除元素的唯一办法是调用容器的成员函数，而remove并不知道它操作的元素所在的容器，所以remove不可能从容器中删除元素。所以使用remove从容器删除元素，容器中的元素数目并不会因此减少。所以remove不是真正意义上的删除，因为它做不到。
-> remove真正做的工作就是将不用被删除的元素移到容器的前部，返回的迭代器位置是第一个应该被删除的元素。而且应该被删除的元素此时是出于容器的尾部，但是它们的值已经不是应该被删除的值了，这是因为remove在遍历整个区间的时候，用后一个需要保留的元素覆盖了前面应该被删除的元素的值。
+分析下面的代码：
 
-![](images/R31_01.png)
+```c++
+void doSomething(){
+    vector<Widget*> vwp;
+    for(int i=0; i<n; ++i){
+        vwp.push_back(new Widget);
+    }
+}
+```
+当vwp的作用域结束，其中的指针并没有释放，造成了资源泄露。如果希望它们被删除，你可能会写出如下的代码：
+```c++
+void doSomething(){
+    vector<Widget*> vwp;
+    for(int i=0; i<n; ++i){
+        vwp.push_back(new Widget);
+    }
+    //do something
+    for(auto i=vwp.begin(); i!=vwp.end(); ++i){
+        delete *i;
+    }
+}
+```
 
-erase-remove 删除方式:
+这样确实可以，只要你不太挑剔的话。一个问题是这段代码做的事情和for_each相同，但是不如for_each更清晰，另一个问题是这段代码不是异常安全的。如果在vwp填充指针和从其中删除指针的过程中有异常抛出的话，同样会有资源泄露。下面就要克服这两个问题。
+
+首先使用for_each替换上面的for循环，为了做到这一点，需要把delete变成一个函数对象。
+
+```c++
+template <typename T>
+struct DeleteObject : public unary_function<const T*, void>{//条款40会解释为什么有这个继承
+    void operator()(const T* ptr) const {//这是函数对象，接收一个指针作为参数
+        delete ptr;
+    }
+}
+
+void doSomething(){
+    vector<Widget*> vwp;
+    for(int i=0; i<n; ++i){
+        vwp.push_back(new Widget);
+    }
+    //do something
+    for_each(vwp.begin(), vwp.end(), DeleteObject<Widget>());
+}
+```
+
+不幸的是，这种形式的函数对象需要指定要删除的对象类型（这里是Widget），vector中保存的Widget*，DeleteObject当然是要删除Widget*类型的指针。这种形式不仅是多余，同样可能会导致一些难以追踪的错误，比如说有代码很不明智的从string中继承。这样做非常危险，因为同其他标准STL容器一样，string是没有虚析构函数的，从没有虚析构函数的类进行共有继承是一项重要禁忌（Effective C++有详细描述）。先抛开禁忌不谈，假如有人就是写出了这样的代码，在调用for_each(vwp.begin(), vwp.end(), DeleteObject<string>());时，因为通过基类指针删除派生类对象，而基类又没有虚析构函数的话，会产生不确定的行为。所以应该让编译器自己推断出应该删除的指针类型，如下是改进后的代码。
+
+```c++
+struct DeleteObject {
+    template <typename T>
+    void operator()(const T* ptr) const {//这是函数对象，接收一个指针作为参数
+        delete ptr;
+    }
+}
+
+void doSomething(){
+    vector<Widget*> vwp;
+    for(int i=0; i<n; ++i){
+        vwp.push_back(new Widget);
+    }
+    //do something
+    for_each(vwp.begin(), vwp.end(), DeleteObject());
+}
+```
+
+但是上述代码依然不是类型安全的，如果在创建Widget对象和执行for_each销毁对象之间有异常被抛出，就会有资源泄露，可以使用带引用计数的智能指针来解决这个问题，如下是最终优化的版本。
+
+```c++
+void doSomething(){
+    typedef std::shared_ptr<Widget> SPW;//SPW表示指向Widget的shared_ptr
+    vector<SPW> vwp;
+    for(int i=0; i<n; ++i){
+        vwp.push_back(SPW(new Widget));
+    }
+}
+```
+
+## R08 切勿创建包含auto_ptr的容器对象
+
+包含auto_ptr的容器是被禁止的，这样的代码不应该被编译通过（可惜目前有些编译器做不到这一点）。首先是因为这样的容器是不可移植的，其次，拷贝一个auto_ptr意味着它指向的对象的所有权被移交到拷入的auto_ptr上，而它自身被置为NULL（相当于是移动），这种拷贝包括调用拷贝构造函数和赋值构造函数的时候。而STL容器中的拷贝遍地都是，举一个例子，调用sort函数给包含auto_ptr<Widget>的vector排序时（定义好了排序函数谓词），在排序过程中，Widget的一个或几个auto_ptr可能会被置为NULL。这是因为sort的常见实现算法是，把容器中的某个元素当作“基准元素”，然后对大于或小于等于该元素的其他元素递归调用排序操作，会把待交换的元素首先赋值给一个临时变量，则自身被置为NULL了，该临时对象超过作用域也会被销毁，从而导致结果vector中的元素被置为NULL。
+
+```c++
+//	对vector所做的排序操作可能会改变它的内容！
+vector<auto_ptr<Widget> > widgets;sort(widgets.begin(), widgets.end(), widgetAPcompare());
+```
+
+## R09 慎重选择删除元素的方法
+
+**删除容器中有特定值的所有对象**
+对标准容器 `Container<int> c`; 删除其中所有值为 1963 的元素的方法。
+
+`erase-remove` 习惯用法（连续内存容器 vector，deque，string）：
+
+```c++
+c.erase(remove(c.begin(), c.end(), 1963), c.end());
+```
+
+list: `c.remove(1963);`
+
+关联容器：`c.erase(1963)`; 对数时间开销，基于等价而不是相等。注意关联容器没有名为 remove 的成员函数，使用任何名为 remove 的操作都是完全错误的。
+
+**删除容器中满足特定判别式（条件）的所有对象**
+
+删除使下面的判别式返回 true 的每一个对象
+```c++
+bool badValue(int );
+// 序列容器(vector,string,deque,list)
+c.erase(remove_if(c.begin(), c.end(), badValue), c.end());
+// list
+c.remove_if(badValue);
+```
+高效方法：写一个循环遍历容器中的元素，并在遍历过程中删除元素。注意，对于关联容器（map，set，multimap，multiset），删除当前的 iterator，只会使当前的 iterator 失效。
+
+原因：关联容器的底层使用红黑树实现，插入、删除一个结点不会对其他结点造成影响。erase 只会使被删除元素的迭代器失效。关联容器的 erase 返回值为 void，可以使用 erase(iter++) 的方式删除迭代器。
+
+```c++
+AssocContainer<int> c;
+ofstream logFile;
+...
+for (AssocContainer<int>::iterator i = c.begin(); i != c.end(); /*什么也不做*/) {
+  if (badValue(*i)) {
+    logFile << "Erasing " << *i << '\n';	// 写日志文件
+    c.erase(i++);		// 使用后缀递增删除元素，避免迭代器无效。
+  } else {
+     ++i;
+  }
+}
+```
+对于序列式容器（vector，string，deque），**删除当前的 iterator 会使后面所有元素的 iterator 都失效**。
+
+原因： vector、string、deque 使用了**连续分配的内存**，删除一个元素会导致后面的所有元素都向前移动一个位置。所以不能使用 erase(iter++) 的方式，**但可以使用 erase 方法，序列容器的 erase 可以返回下一个有效的 iterator**。
+
+## R10 了解分配器（allocator）的约定和限制
+
+1. 像new操作符和new[]操作符一样，STL内存分配子负责分配和释放原始内存，但是多数标准容器从不向与之关联的分配子申请内存。
+2.allocator是一个模板，模板参数T表示为它分配内存的对象的类型，提供类型定义pointer和reference，但是始终让pointer为T*，reference为T&。
+3. 千万不能让自定义的allocator拥有随对象而不同的状态，即不应该有非静态成员变量。
+4.传给allocator的allocate成员函数的参数是**对象的个数**，而**不是所需字节的大小**，这一点和new相同，和operator new，malloc相反。同时allocate的返回值是T*指针，即使尚未有T对象被构造出来，而operator new，malloc返回都是void*，void*是用来指向未初始化内存的传统方式。
+5. 自定义的allocator一定要提供嵌套的rebind模板，因为标准容器依赖该模板
+
+## R11 理解自定义分配器的正确用法
+
+详细参考:https://jianye0428.github.io/posts/clause_11/
+
+## R12 切勿对STL容器的线程安全性有不切实际的依赖
+
+详细信息请参考: https://jianye0428.github.io/posts/clause_12/
+STL 只支持以下多线程标准：
+ - 多个线程读是安全的。
+ - 多个线程对不同的容器做写入操作是安全的。
+
+考虑一段单线程可以成功执行的代码。
+
+```c++
+//将vector中的5都替换成0
+vector<int> v;
+vector<int>::iterator first5(find(v.begin(), v.end(), 5));
+if(first5 != v.end()){
+    *first5 = 0;
+}
+```
+
+但是在多线程环境中，执行第二行语句后返回的first5的值可能会被改变，导致第三行的判断不准确，甚至一些插入/删除操作会让first5无效。**所以必须在操作vector之前，再其上下位置加锁。**
 
 ```c++
 vector<int> v;
-...
-v.erase(remove(v.begin(), v.end(), 99), v.end());
-```
-
-例外：list的remove成员函数是唯一一个名为remove并且真正删除了容器中元素的函数。因此，list 中的 remove 也应该被称为 erase，它可以真正删除元素。
-
-两个 remove 类算法: 除了remove，remove_if和unique同样属于这种情况，unique是删除容器中的相邻重复元素，如果想真正的删除，同样需要配合调用erase。
-
-## R33 对包含指针的容器使用 remove 这一类算法时要特别小心。
-
-对包含指针的容器使用 remove 这一类算法时要特别警惕，否则就是资源泄露。
-
-使用智能指针(RSCP，Reference Counting Smart Pointer)就无需考虑这些问题。但智能指针类型(RCSP<Widget>)必须能够隐式地转换为内置指针类型(Widget*)。
-
-![](images/R33_01.png)
-
-## R34 了解哪些算法要求使用排序的区间作为参数
-
-**要求排序区间的算法**
-  - binary_search、lower_bound、upper_bound、equal_range：只有当这些算法接收随机访问迭代器时，才保证对数时间的查找效率。否则，尽管比较次数依然是区间元素个数的对数，执行过程需要线性时间。
-  - set_union、set_intersection、set_difference、set_symmetric_difference：需要排序的区间，这样能够保证线性时间内完成工作。
-  - merge 和 inplace_merge：实现了合并和排序的联合操作，源区间已经排过序则可以线性时间内完成。
-  - includes：判断一个区间中的所有对象是否都在另一个区间中，如果这两个区间排序则承诺线性时间的效率。
-
-**不一定要求排序区间，但通常情况下会与排序区间一起使用**
-  - unique 通常用于删除一个区间的所有重复值，但并非真正意义上的删除。
-  - 必须为 STL 提供一致的排序信息：如果你为一个算法提供了一个排序的区间，而这个算法也带一个比较函数作为参数，那么，你一定要保证你传递的比较函数与这个排序区间所用的比较函数有一致的行为。
-  - 所有要求排序区间的算法(除了 unique 和 unique_copy)均使用等价性来判断两个对象是否“相同”，这与标准的关联容器一致。与此相反的是，unique 和 unique_copy 在默认情况下使用“相等”来判断两个对象是否“相同”。
-
-## R35 通过 mismatch 或 lexicographical_compare 实现简单的忽略大小写的字符串比较。
-
-**判断两个字符是否相同，而不去管它们的大小写(ciCharCompare)**
-
-```c++
-int ciCharCompare(char c1, char c2)
-{
-    int lc1 = tolower(static_cast<unsigned char>(c1));
-    int lc2 = tolower(static_cast<unsigned char>(c2));
-
-    if (lc1 < lc2) return -1;
-    if (lc1 > lc2) return 1;
-    return 0;
+getMutex(v);
+vector<int>::iterator first5(find(v.begin(), v.end(), 5));
+if(first5 != v.end()){
+    *first5 = 0;
 }
-```
-在 C 和 C++ 中，char 可能是有符号的，可能是无符号的。tolower 的参数和返回值都是 int，但是，除非该 int 值是 EOF，否则它的值必须可以用 unsigned char 表示。
-
-**ciStringCompare**
-
-```c++
-int ciStringCompareImpl(const string &s1, const string &s2);
-
-int ciStringCompare(const string &s1, const string &s2)
-{
-	if (s1.size() < s2.size()) return ciStringCompareImpl(s1, s2);
-    else return -ciStringCompare(s2, s1);
-}
+releaseMutex(v);
 ```
 
-- 第一种实现: mismatch
-![](images/R35_01.png)
-```c++
-//std::not2
-template <class Predicate>
-  binary_negate<Predicate> not2 (const Predicate& pred);
-//Return negation of binary function object
-//Constructs a binary function object (of a binary_negate type) that returns the //opposite of pred (as returned by operator !).
+更为完善的方法是实现一个Lock类，在构造函数中加锁，在析构函数中释放锁，即RAII。
 
-// It is defined with the same behavior as:
-template <class Predicate> binary_negate<Predicate> not2 (const Predicate& pred)
-{
-  return binary_negate<Predicate>(pred);
-// 二元比较后再取非。
-```
-- 第二种实现: lexicographical
-
-```c++
-int ciCharCompare(char c1, char c2)
-{
-    return tolower(static_cast<unsigned char>(c1)) <
-    	tolower(static_cast<unsigned char>(c2));
-}
-
-bool ciStringCompare(const string &s1, const string &s2)
-{
-    return lexicographical_compare(s1.begin(), s1.end(),
-                                  s2.begin(), s2.end(),
-                                  ciCharLess);
-}
-```
-lexicographical_compare 是 strcmp 的一个泛化版本，可以允许用户自定义两个值的比较准则。
-如果在找到不同的值之前，第一个区间已经结束了，返回 true：一个前缀比任何一个以他为前缀的区间更靠前。
-
-## R36 理解 copy_if 算法的正确实现
-
-copy_if的正确实现:
-
-```c++
-template<typename InputIterator,
-		typename OutputIterator,
-		typename Predicate>
-OutputIterator copy_if(InputIterator begin,
-                      InputIterator end,
-                      OutputIterator destBegin
-                      Predicate p)
-        {
-            while (begin != end) {
-                if (p(*begin)) *destBegin++ = *begin;
-                ++begin;
-            }
-            return destBegin;
-        }
-```
-
-## R37 使用 accumulate 或者 for_each 进行区间统计
-
-**accumulate(计算出一个区间的统计信息)**
-
-1. std::accumulate
-
-    |  sum (1)  | `template <class InputIterator, class T> T accumulate (InputIterator first, InputIterator last, T init)`|
-    |  ----  | :----  |
-    | custom (2) | `template <class InputIterator, class T, class BinaryOperation> T accumulate (InputIterator first, InputIterator last, T init, BinaryOperation binary_op)` |
-2. sum
-   第一种形式：有两个迭代器和一个初始值。计算 double 的总和时，初始值应该设为 0.0，否则 sum 的值不正确(每次加法的结果转换成整数后再运算)
-   第二种形式：使用 istream_iterator 和 istreambuf_interator(数值算法，numeric algorithm)
-    ```c++
-    cout << accumulate(istream_iterator<int>(cin),
-                    istream_iterator<int>(),
-                    0);
-    ```
-   accumulate 直接返回统计结果。
-3. 用法custom
-   1. 计算一个容器中字符串的长度总和。
-    ```c++
-    string::size_type
-    stringLengthSum(string::size_type sumSofFar, 		//size_type:中的技术类型
-                  const string &s)
-    {
-        return sumSoFar + s.size();
-    }
-
-    set<string> ss;
-    ...
-    // 对ss中的每个元素调用stringLengthSum，然后把结果付给lengthSum，初始值为0
-    string::size_type lengthSum =
-        accumulate(ss.begin(), ss.end().
-                  static_cast<string::size_type>(0),
-                  stringLengthSum);
-    ```
-   2. 计算一个区间中数值的乘积。
-    ```c++
-    vector<float> vf;
-    ...
-    // 对vf中的每个元素调用multipies<float>，并把结果赋给product
-    float product = accumulate(vf.begin(), vf.end(), 1.0f, multiplies<float>());
-    //初始值必须为1.0f，保证是浮点数的1。
-    ```
-
-**for_each(对一个区间的每个元素做一个操作)**
-  - for_each 接受两个参数：一个是区间，另一个是函数(通常是函数对象)，对区间中的每个元素都要调用这个函数。但这个函数只接受一个实参(即当前区间的元素)。
-  - for_each 的函数参数允许有副作用。
-  - for_each 返回的是一个函数对象。
-
-ref: https://blog.csdn.net/zhuikefeng/article/details/108164117
+ref:
+[1]. https://www.cnblogs.com/Sherry4869/p/15128250.html</br>
+[2]. https://blog.csdn.net/zhuikefeng/article/details/108164117#t42
