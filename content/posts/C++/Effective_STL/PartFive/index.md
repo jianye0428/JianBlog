@@ -1,5 +1,5 @@
 ---
-title: Effective STL 精度总结 [5] | 算法
+title: Effective STL 精读总结 [5] | 算法
 subtitle: Rule 30 - 37
 date: 2023-08-19T10:28:18+08:00
 draft: true
