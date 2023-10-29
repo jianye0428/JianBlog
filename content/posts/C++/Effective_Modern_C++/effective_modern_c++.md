@@ -2,7 +2,7 @@
 title: Effective_modern_c++
 subtitle:
 date: 2023-10-12T20:01:17+08:00
-draft: true
+draft: false
 author:
   name: Jian YE
   link:
@@ -5819,43 +5819,1161 @@ doAsyncWork 有返回值，可以代表任务的执行状态。基于线程的�
 - 通过 std::async 的基于任务的编程方式会默认解决上面的问题。
 {{</admonition>}}
 
-#### []()
-{{<admonition quote "总结" false>}}
+#### [Item 36: Specify std::launch::async if asynchronicity is essential.](https://blog.csdn.net/Dong_HFUT/article/details/126076160)
 
+当你使用 `std::async()` 执行一个函数或可调用对象时，你通常期望这个函数是异步执行。但是， `std::async()` 不一定如你所愿。其实 `std::async()` 是根据执行策略决定是否会异步执行。 `std::async()` 有两种执行策略，定义在 `std::launch` 作用域中：
+
+`std::launch::async` 函数或可执行对象必须异步执行，也即运行在其他线程上。
+`std::launch::deferred` 函数或可执行对象延迟执行。仅在 `std::async()` 的返回对象 `std::future` 调用 `get` 或 `wait` 时，才在当前线程同步执行，并且调用者会阻塞直到函数执行完成。
+
+`std::async()` 的默认策略其实是二者的组合，也即以下两者涵义完全相同：
+
+```c++
+auto fut1 = std::async(f); // run f using default launch policy
+
+auto fut2 = std::async(std::launch::async |   // run f either
+                       std::launch::deferred, // async or
+                       f);                    // deferred
+```
+
+默认的策略下，f 可能是同步执行也可能是异步执行。正如 Item 35: Prefer task-based programming to thread-based. 中讨论的：标准库的线程管理模块承担了线程的创建和释放的职责，可以有效避免超额订阅、保证负载均衡。这极大地方便了 std::async 的使用。
+
+但是，默认策略也会有如下问题：
+- 无法预测 f 是否是并发执行。
+- 无法预测 f 是否运行在 get 或 wait 调用时的线程上。
+- 甚至无法预测 f 是否已经执行了。因为没法保证一定会调用 get 或 wait。
+
+当 `f` 要访问本地线程存储（TLS，Thread Local Storage）时，无法预测访问的是哪个线程的本地存储。
+
+```c++
+auto fut = std::async(f); // TLS for f possibly for
+                          // independent thread, but
+                          // possibly for thread
+                          // invoking get or wait on fut
+```
+
+std::async 的默认策略还会影响到 wait_for 超时调用写法，可能导致 bug，例如：
+
+```c++
+using namespace std::literals; // for C++14 duration suffixes; see Item 34
+void f()                       // f sleeps for 1 second,  then returns
+{
+  std::this_thread::sleep_for(1s);
+}
+auto fut = std::async(f);             // run f asynchronously (conceptually)
+while (fut.wait_for(100ms) !=         // loop until f has
+       std::future_status::ready)     // finished running...
+{                                     // which may never happen!
+  …
+}
+```
+
+如果 std::async 是并发执行，也即执行策略为 std::launch::async，以上代码没有问题。但是，如果执行策略为 std::launch::deferred时，fut.wait_for 总是返回 future_status::deferred，以上代码就会有问题。解决办法也很简单，先通过 wait_for 的超时时间为 0 来检测 std::async 是异步执行还是同步执行：
+
+```c++
+auto fut = std::async(f);          // as above
+if (fut.wait_for(0s) ==            // if task is
+    std::future_status::deferred)  // deferred...
+{
+             // ...use wait or get on fut
+  …          // to call f synchronously
+
+} else {     // task isn't deferred
+  while (fut.wait_for(100ms) !=          // infinite loop not
+         std::future_status::ready) {    // possible (assuming
+                                         // f finishes)
+    …                // task is neither deferred nor ready,
+                     // so do concurrent work until it's ready
+  }
+  …                  // fut is ready
+}
+```
+
+综上，如果你的使用场景不是以下几种，则需要考虑是否需要替换 std::async 的默认策略：
+- 当调用 `get` 或 `wait` 时，任务不需要并发执行。
+- 并不关心访问的是哪个线程的本地存储。
+- 可以保证 `get` 或 `wait` 一定会被调用，或者任务不被执行也能接受。
+- 使用 `wait_for` 或 `wait_until` 时，需要考虑 `std::launch::deferred` 策略。
+
+
+如果不是以上场景，你可能需要指定使用 `std::launch::async` 策略，也即真正创建一个线程去并发执行任务：
+
+```c++
+auto fut = std::async(std::launch::async, f);  // launch f asynchronously
+```
+
+这里提供一个并发执行任务的封装：
+
+```c++
+template<typename F, typename... Ts>  // C++11
+inline
+std::future<typename std::result_of<F(Ts...)>::type>
+reallyAsync(F&& f, Ts&&... params)       // return future
+{                                        // for asynchronous
+  return std::async(std::launch::async,  // call to f(params...)
+                    std::forward<F>(f),
+                    std::forward<Ts>(params)...);
+}
+```
+
+`reallyAsync` 接受一个可执行对象 f 和 多个参数 params，并完美转发给 std::async ，同时使用 std::launch::async 策略。C++14 版本如下：
+
+```c++
+template<typename F, typename... Ts>
+inline
+auto     // C++14
+reallyAsync(F&& f, Ts&&... params)
+{
+  return std::async(std::launch::async,
+  std::forward<F>(f),
+  std::forward<Ts>(params)...);
+}
+```
+
+{{<admonition quote "总结" false>}}
+- std::async 的默认启动策略允许是异和者同步。
+- 灵活性导致访问 thread_locals 的不确定性，隐含了任务可能不会被执行的含义，会影响程序基于超时的 wait 调用。
+- 只有确定是异步时才指定为 std::launch::async。
 {{</admonition>}}
 
-#### []()
-{{<admonition quote "总结" false>}}
+#### [Item 37: Make std::threads unjoinable on all paths.](https://blog.csdn.net/Dong_HFUT/article/details/126195848)
 
+每个 `std::thread` 只会处于两种状态状态之一：其一为 `joinable`，其二为 un`joinable` 。一个 `joinable` 的 `std::thread` 对应于一个正在或可能在运行的底层线程。例如，一个对应于处于阻塞或者等待调度的底层线程的 `std::thread` 是 `joinable`。对应于底层线程的 `std::thread` 已经执行完成也可以被认为是 `joinable`。
+
+而 `unjoinable` 的线程包括：
+- 默认构造的 `std::thread`。这样的 `std::thread` 没有执行函数，也就不会对应一个底层的执行线程。
+- `std::thread` 对象已经被 move。其底层线程已经被绑定到其它 `std::thread`。
+- `std::thread` 已经 join。已经 join 的对应 `std::thread` 的底层线程已经运行结束。
+- `std::thread` 已经 detach。已经 detach 的 `std::thread` 与其对应的底层线程已经没有关系了。
+
+std::thread 的 joinabilty 状态之所以重要的原因之一是：一个 joinable 状态的 std::thread 对象的析构函数的调用会导致正在运行程序停止运行。例如，我们有一个 doWork 函数，它接收一个过滤函数 filter 和一个最大值 MaxVal 作为参数。 doWork 检查并确定所有条件满足时，对 0 到 MaxVal 执行 filter。对于这样的场景，一般会选择基于任务的方式来实现，但是由于需要使用线程的 handle 设置任务的优先级，只能使用基于线程的方法来实现（相关讨论可以参见 [Item 35: Prefer task-based programming to thread-based.](https://blog.csdn.net/Dong_HFUT/article/details/125702349?spm=1001.2014.3001.5502)）。可能的实现如下：
+
+```c++
+constexpr auto tenMillion = 10000000; // see Item 15 for constexpr
+bool doWork(std::function<bool(int)> filter, // returns whether
+            int maxVal = tenMillion)         // computation was
+{                                            // performed; see
+                                             // Item 2 for
+                                             // std::function
+  std::vector<int> goodVals;  // values that
+                              // satisfy filter
+  std::thread t([&filter, maxVal, &goodVals]  // populate
+                {                             // goodVals
+                  for (auto i = 0; i <= maxVal; ++i)
+                  { if (filter(i)) goodVals.push_back(i); }
+                });
+  auto nh = t.native_handle();      // use t's native
+  …                                 // handle to set
+                                    // t's priority
+  if (conditionsAreSatisfied()) {
+    t.join();                       // let t finish
+    performComputation(goodVals);
+    return true;                    // computation was
+  }                                 // performed
+  return false;                     // computation was
+}                                   // not performed
+```
+
+对于上面的实现，如果 conditionsAreSatisfied() 返回 true，没有问题。如果 conditionsAreSatisfied() 返回 false 或抛出异常，`std::thread` 对象处于 `joinable` 状态，并且其析构函数将被调用，会导致执行程序停止运行。
+
+你可能会疑惑为什么 `std::thread` 的析构函数会有这样的行为，那是因为其他两种选项可能更加糟糕：
+
+隐式的 join。析构函数调用时，隐式去调用 join 等待线程结束。这听起来似乎很合理，但会导致性能异常，并且这有点反直觉，因为 conditionsAreSatisfied() 返回 false 时，也即条件不满足时，还在等待 filter 计算完成。
+隐式 detach。析构函数调用时，隐式调用 detach 分离线程。doWork 可以快速返回，但可能导致 bug。因为 doWork 结束后，其内部的 goodVals 会被释放，但线程还在运行，并且访问 goodVals ，将导致程序崩溃。
+由于 `joinable` 的线程会导致严重的后果，因此标准委员会决定禁止这样的事情发生（通过让程序停止运行的方式）。这就需要程序员确保 `std::thread` 对象在离开其定义的作用域的所有路径上都是 un`joinable` 。但是想要覆盖所有的路径并非易事，return、continue、goto、break 或者异常等都能跳出作用域。
+
+无论何时，想在出作用域的路径上执行某个动作，常用的方法是将这个动作放入到一个局部对象的析构函数中。这种对象被成为 RAII（Resource Acquisition Is Initialization）对象，产生这个对象的类是 RAII 类。RAII 类在标准库中很常见，例如 STL 容器（每个容器的析构函数销毁容器中的内容并释放它的内存）中的智能指针（std::unique_ptr 析构函数调用它的 deleter 删除它指向的对象，std::shared_ptr 和 std::weak_ptr 的析构函数中会减少引用计数）、std::fstream 对象（析构函数关闭相应的文件）。但是 `std::thread` 对象没有标准的 RAII 类，这可能是标准委员会拒绝将 join 和 detach 作为默认选项，因为他们也不知道这个类应该有什么样的行为。
+
+好在实现这样的一个类也并非难事。例如，你可以让用户指定 ThreadRAII 类在销毁时选择 join 还是 detach：
+
+```c++
+class ThreadRAII {
+public:
+  enum class DtorAction { join, detach };    // see Item 10 for
+                                             // enum class info
+  ThreadRAII(std::thread&& t, DtorAction a)  // in dtor, take
+  : action(a), t(std::move(t)) {}            // action a on t
+
+  ~ThreadRAII()
+  {
+    if (t.joinable()) {                     // see below for
+                                            // joinability test
+      if (action == DtorAction::join) {
+        t.join();
+      } else {
+        t.detach();
+      }
+    }
+  }
+
+  std::thread& get() { return t; }         // see below
+
+private:
+  DtorAction action;
+  std::thread t;
+};
+```
+
+关于上面代码的几点说明：
+- 构造函数只接收 `std::thread` 的右值，因为 `std::thread` 不可拷贝。
+- 构造函数参数排列顺序符合调用者的直觉（std:thread 为第一个参数，DtorAction 为第二个参数），但是成员变量的初始化符合成员变量的申明顺序。在这个类中两个成员变量的前后顺序没有意义，但是通常而言，一个成员的初始化依赖另一个成员。
+- `ThreadRAII` 提供了 get 函数，用于访问底层的 `std::thread` 对象。提供 get 方法访问 `std::thread`，避免了重复实现所有 `std::thread` 的接口。
+- `ThreadRAII` 的析构函数首先检查 t 是否为 `joinable` 是必要的，因为对一个 un`joinable` 的线程调用 join 和 detach 将产生未定义的行为。
+
+
+将 `ThreadRAII` 应用于 `doWork` 的例子上：
+
+```c++
+bool doWork(std::function<bool(int)> filter,
+            int maxVal = tenMillion)
+{
+  std::vector<int> goodVals;
+
+  ThreadRAII t(                           // use RAII object
+    std::thread([&filter, maxVal, &goodVals]
+                {
+                  for (auto i = 0; i <= maxVal; ++i)
+                    { if (filter(i)) goodVals.push_back(i); }
+                }),
+    ThreadRAII::DtorAction::join          // RAII action
+  );
+
+  auto nh = t.get().native_handle();
+  ...
+  if (conditionsAreSatisfied()) {
+    t.get().join();
+    performComputation(goodVals);
+    return true;
+  }
+  return false;
+}
+```
+
+这个例子中，我们选择 join 作为 ThreadRAII 析构函数的动作。正如前文所述，detach 可能导致程序崩溃，join 可能导致性能异常。两害取其轻，性能异常相对可以接受。
+
+正如 [Item 17: Understand special member function generation.](https://blog.csdn.net/Dong_HFUT/article/details/123433559?spm=1001.2014.3001.5501) 所介绍的，由于 ThreadRAII 自定义了析构函数，编译器将不在自动生成移动操作，但没有理由让 ThreadRAII 对象不支持移动。因而，需要我们将移动操作标记为 default：
+
+```c++
+class ThreadRAII {
+public:
+  enum class DtorAction { join, detach };
+
+  ThreadRAII(std::thread&& t, DtorAction a)
+  : action(a), t(std::move(t)) {}
+
+  ~ThreadRAII()
+  {
+    ...  // as before
+  }
+
+  ThreadRAII(ThreadRAII&&) = default;            // support
+  ThreadRAII& operator=(ThreadRAII&&) = default; // moving
+
+  std::thread& get() { return t; }               // as before
+
+private:
+  DtorAction action;
+  std::thread t;
+};
+```
+
+{{<admonition quote "总结" false>}}
+- 在所有路径上保证 thread 是 unjoinable 的。
+- 析构时 join 会导致难以调试的性能异常问题。
+- 析构时 detach 会导致难以调试的未定义行为。
+- 在成员列表的最后声明 std::thread 类型成员。
 {{</admonition>}}
 
-#### []()
-{{<admonition quote "总结" false>}}
+#### [Item 38: Be aware of varying thread handle destructor behavior.](https://blog.csdn.net/Dong_HFUT/article/details/126435546)
 
+Item 37 介绍了 std::thread 对应一个底层的系统执行线程，一个非 deferred 任务的 future（这里包括 std::future 和 std::shared_future，下同）也对应一个底层的系统执行线程。一个 joinable 的 std::thread 对象析构时会导致程序终止，因为隐式的 join() 和隐式的 detach() 可能会更加糟糕。但是，future 的析构函数可能是隐式地执行 detach()，也可能是隐式地执行 join()，或者二者皆不是。本 Item 将和大家探讨下这个问题。
+
+直观地观察，被调用者（callee）和调用者（caller）之间有一个通信通道（channel），callee 异步执行完成后，将结果写入（通常通过 std::promise 对象）这个通道，caller 通过 future 读取结果。类似下面这个模型：
+
+![](images/item_38_01.png)
+
+但是，这个模型有点问题：callee 的结果存储在哪里？首先，不能存储在 callee 的 std::promise 对象中，因为 caller 在调用 future 的 get 方法之前，callee 可能已经结束了，callee 的局部变量 std::promise 已经销毁了。再者，callee 的结果也不能存储在 caller 的 std::future 中，因为 std::future 可以用来创建 std::shared_future ，那么这个结果就需要被拷贝多次，不是所有结果的类型都是可以拷贝的。其实 callee 的结果是被存储在独立于 caller 和 callee 之外的特殊位置，被成为共享状态（shared state）的位置。模型如下：
+
+![](images/item_38_02.png)
+
+由于这个共享状态的存在， future 的析构函数的行为则与这个共享状态关联的 future 决定：
+- 由 std::async 发起的非 deferred 的任务的返回的 future 对象，并且它是最后一个引用共享状态的，那么它的析构会一直阻塞到任务完成，也就是隐式执行 join()。
+- 其他的 future 只是简单的销毁。对于异步任务，类似隐式执行 detach()，对于 deferred 策略的任务则不再运行。
+
+反过来看，future 会隐式执行 join() 需要满足下面 3 个条件：
+- future 是由 std::async 创建产生，并且引用共享状态。
+- std::async 指定的任务策略是 std::launch::async。
+- future 是最后一个引用共享状态的对象。
+
+future 的 API 没有提供它是否由 std::async 产生并指向共享状态，因此，对于任意的 future，我们无法知道它的析构函数会不会阻塞到任务完成。
+
+```c++
+// this container might block in its dtor, because one or more
+// contained futures could refer to a shared state for a non-
+// deferred task launched via std::async
+std::vector<std::future<void>> futs;   // see Item 39 for info
+                                       // on std::future<void>
+class Widget {                         // Widget objects might
+public:                                // block in their dtors
+  ...
+private:
+  std::shared_future<double> fut;
+};
+```
+
+如果你知道给定的 future 不满足上述 3 个条件，那么其析构函数就不会阻塞住。例如，future 来自于 std::packaged_task：
+
+```c++
+int calcValue();               // func to run
+
+std::packaged_task<int()>      // wrap calcValue so it
+  pt(calcValue);               // can run asynchronously
+
+auto fut = pt.get_future();    // get future for pt
+```
+
+一般地， std::packaged_task pt 需要运行在一个 std::thread 上， std::packaged_task 的 future 是的析构是结束程序，还是执行 join，异或执行 detach，交给了对应的 std::thread 接下来的行为了：
+
+```c++
+{                                  // begin block
+  std::packaged_task<int()>
+    pt(calcValue);
+
+  auto fut = pt.get_future();
+
+  std::thread t(std::move(pt));   // std::packaged_task 不可拷贝
+
+  ...                              // see below
+}                                  // end block
+```
+
+
+`“…”` 就是接下来操作 t 的代码，可能如下：
+- t 什么也没做（没有 join 也没有 detach）。在 block 结束时， t 是 joinable 的，这会导致程序终止。
+- t 执行 join 。这个时候， fut 的析构函数没有必要再执行 join。
+- t 执行 detach 。这个时候， fut 的析构函数没有必要再执行 detach。
+
+下面给一个测例作为验证：
+
+```c++
+#include <iostream>
+#include <future>
+#include <thread>
+#include <chrono>
+
+using namespace std::chrono_literals;
+
+void func() {
+    std::this_thread::sleep_for(3s);
+}
+
+int main() {
+    {
+        std::packaged_task<void()> pt(func);
+        auto fut = pt.get_future();
+        std::thread t(std::move(pt));
+        // t.join();
+        // t.detach();
+    }
+    std::cout << "hello!" << std::endl;
+    return 0;
+}
+```
+
+执行结果如下：
+
+```c++
+terminate called without an active exception
+Aborted (core dumped)
+```
+
+将 `join` 或者 `detach` 部分代码打开，则不会产生上述问题。
+
+{{<admonition quote "总结" false>}}
+- future 的正常析构行为只是销毁 future 本身的成员数据。
+- 最后一个引用通过 std::async 创建的 non-deferred 任务的共享状态的 future 会阻塞到任务结束。
 {{</admonition>}}
 
-#### []()
-{{<admonition quote "总结" false>}}
+#### [Item 39: Consider void futures for one-shot event communication.](https://blog.csdn.net/Dong_HFUT/article/details/126895081)
 
+对于两个异步任务，经常需要一个任务（检测线程）告诉另一个任务（反应线程）特定的事件已经发生了，反应线程可以继续执行了。这个事件可能是某个数据结构被初始化了，某一阶段计算完成了，或者一个传感器数据已经采集好了。需要一种机制来完成两个任务线程间的通信，有哪些比较好的方法呢？
+
+**使用条件变量**
+
+一个明显的方法就是使用条件变量。检测线程在特定事件发生后，通过条件变量通知反应线程。反应线程需要借助 std::mutex 和 std::unique_lock（std::unique_lock 和 std::lock_guard 都是管理锁的工具，都是 RAII 类；它们都是在定义时获得锁，在析构时释放锁。它们的主要区别在于 std::unique_lock 管理锁机制更加灵活，可以再需要的时候进行 lock 或者 unlock ，不必须得是析构或者构造时。因而为了防止线程一直占用锁，条件变量选择和 std::unique_lock 一起工作，条件变量的 wait 系列方法会在阻塞时候自动释放锁）。代码逻辑如下：
+
+```c++
+std::condition_variable cv;   // condvar for event
+std::mutex m;                 // mutex for use with cv
+
+// 检测线程
+…                     // detect event
+cv.notify_one();      // tell reacting task
+// cv.notify_all();   // tell multiple reacting task
+
+// 反应线程
+…                                        // prepare to react
+{                                        // open critical section
+  std::unique_lock<std::mutex> lk(m);    // lock mutex
+  cv.wait(lk);                           // wait for notify;
+                                         // this isn't correct!
+  …                                      // react to event
+                                         // (m is locked)
+}                                        // close crit. section;
+                                         // unlock m via lk's dtor
+…                                        // continue reacting
+                                         // (m now unlocked)
+```
+
+上述代码除了使用锁使程序变得复杂以外，还存在以下问题：
+- 如果检测线程在反应线程 cv.wait 前发出通知，反应线程将会错过通知而永远不会被唤醒。
+- 反应线程的 cv.wait 存在被虚假唤醒的可能（由于操作系统的问题，wait 在不满足条件时，也可能被唤醒，也即虚假唤醒）。虽然可以给 wait 传谓词参数，用于判断是否为真的唤醒，但是多数情况先并没有好的判断方法。
+
+
+```c++
+cv.wait(lk,
+        []{ return whether the event has occurred; });
+```
+
+**使用共享的flag**
+
+大家可能会想到使用一个共享的 flag 来实现不同线程的同步。代码逻辑如下：
+
+```c++
+std::atomic<bool> flag(false);   // shared flag; see Item 40 for std::atomic
+
+// 检测线程
+…                    // detect event
+flag = true;         // tell reacting task
+
+// 反应线程
+…                   // prepare to react
+while (!flag);      // wait for event
+…                   // react to event
+```
+
+这种方法的缺点是反应线程在等待过程中不阻塞的，而是轮询机制，一直处在运行状态，也就是仍然占用硬件资源。
+
+**使用条件变量加共享的flag**
+
+还可以将条件变量和共享 flag 结合使用，flag 表示是否为发生了关心的事件。通过 std::mutex 同步访问 flag，就无需使用 std::atomic 类型的 flag 了，只要简单的 bool 类型即可。
+
+```c++
+std::condition_variable cv;
+std::mutex m;
+bool flag(false);
+
+// 检测线程
+…                                    // detect event
+{
+  std::lock_guard<std::mutex> g(m);  // lock m via g's ctor
+  flag = true;                       // tell reacting task
+                                     // (part 1)
+}                                    // unlock m via g's dtor
+cv.notify_one();                     // tell reacting task
+                                     // (part 2)
+
+// 反应线程
+…                                      // prepare to react
+{
+  std::unique_lock<std::mutex> lk(m);
+  cv.wait(lk, [] { return flag; });    // use lambda to avoid
+                                       // spurious wakeups
+  …                                    // react to event
+                                       // (m is locked)
+}
+…                                      // continue reacting
+                                       // (m now unlocked)
+```
+
+这种方法功能上没有什么问题，就是代码稍微复杂了些。
+
+**使用 future**
+
+在 [Item38](https://blog.csdn.net/Dong_HFUT/article/details/126435546?spm=1001.2014.3001.5502) 中介绍了 std::future 和 std::promise 的通信方式。std::future 内部存储了一个将来会被赋值的值，并可以通过 get 方法访问。而 std::promise 在将来给这个值赋值，每个 std::promise 内部都有一个 std::future 对象，std::promise 和其内部的 std::future 共享这个值。我们并不关心这个值具体是啥，因而 std::promise 和 std::future 的模板类型使用 void 即可。代码逻辑如下：
+
+```c++
+std::promise<void> p;      // promise for communications channel
+
+// 检测线程
+…                  // detect event
+p.set_value();     // tell reacting task
+
+// 反应线程
+…                       // prepare to react
+p.get_future().wait();  // wait on future corresponding to p
+…                       // react to event
+```
+
+使用这种方法的优点包括：避免了使用 mutex，wait 是真阻塞的，也没有条件变量的 notify 在 wait 之前执行的问题。
+
+当然这种方法也有缺点。首先 std::future 和 std::promise 间的共享状态是动态申请的堆内存，需要堆资源的申请和释放，有一定的开销。更重要的问题是，由于 std::promise 只能设置值一次，因而这种通知机制是一次性的。
+
+假设你想让反应线程创建后暂停执行，直到期望的事件发生后继续执行，使用基于 future 的方法是一个不错的选择。例如：
+
+```c++
+std::promise<void> p;
+void react();           // func for reacting task
+
+void detect()                             // func for detecting task
+{
+  std::thread t([]                        // create thread
+                {
+                  p.get_future().wait();  // suspend t until
+                  react();                // future is set
+                });
+  …                                       // here, t is suspended
+                                          // prior to call to react
+  p.set_value();                          // unsuspend t (and thus
+                                          // call react)
+  …                                       // do additional work
+  t.join();                               // make t unjoinable
+}                                         // (see Item 37)
+```
+
+为了让 detect 的所有出口 t 都是 unjoinable 的，应该使用 Item37 中介绍的 ThreadRAII 类的，例如：
+
+```c++
+void detect()
+{
+  ThreadRAII tr( // use RAII object
+    std::thread([]
+                {
+                  p.get_future().wait();
+                  react();
+                }),
+    ThreadRAII::DtorAction::join // risky! (see below)
+  );
+  …              // thread inside tr
+                 // is suspended here
+  p.set_value(); // unsuspend thread
+                 // inside tr
+  …
+}
+```
+
+然而，上述代码还存在问题。如果在第一个 “…” 的地方发生异常，p 的 set_value 不会被执行，那么 lambda 函数中的 wait 永远不会返回，由于 tr 的类型是 join 的，则 tr 的析构永远不会完成，代码将会挂起（见 http://scottmeyers.blogspot.com/2013/12/threadraii-thread-suspension-trouble.html 中的相关讨论）。
+
+这里给出不使用 RAII 类 Thread 的方法使其挂起然后取消挂起，这里关键是使用 std::shared_future 代替 std::future，std::future 的 share 成员函数将共享状态所有权转移到 std::shared_future：
+
+
+```c++
+std::promise<void> p;
+void detect()                          // now for multiple
+{                                      // reacting tasks
+  auto sf = p.get_future().share();    // sf's type is
+                                       // std::shared_future<void>
+  std::vector<std::thread> vt;         // container for
+                                       // reacting threads
+  for (int i = 0; i < threadsToRun; ++i) {
+    vt.emplace_back([sf]{ sf.wait();   // wait on local
+                          react(); }); // copy of sf; see
+  }                                    // Item 42 for info
+                                       // on emplace_back
+  …                                    // detect hangs if
+                                       // this "…" code throws!
+  p.set_value();                       // unsuspend all threads
+  …
+  for (auto& t : vt) {                 // make all threads
+    t.join();                          // unjoinable; see Item 2
+  }                                    // for info on "auto&"
+}
+```
+这样，就可以很好地使用 future 实现线程间的一次性通信。
+
+{{<admonition quote "总结" false>}}
+- 对于简单的事件通信，基于条件变量的方法需要一个多余的互斥锁、对检测和反应任务的相对进度有约束，并且需要反应任务来确认事件是否已发生。
+- 基于 flag 的方法可以避免的上一条的问题，但是不是真正的阻塞任务。
+- 组合条件变量和 flag 使用，上面的问题都解决了，但是逻辑让人多少有点感觉有点生硬。
+- 使用 std::promise 和 future 的方案可以避免这些问题，但为共享状态使用了堆内存，并且仅限于一次性通信。
 {{</admonition>}}
 
-#### []()
-{{<admonition quote "总结" false>}}
+#### [Item 40: Use std::atomic for concurrency, volatile for special memory.](https://blog.csdn.net/Dong_HFUT/article/details/127013499)
 
+本 Item 探讨一下 atomic 类型和 volatile 关键字在并发程序中的区别和应用。
+
+C++11 提供了 std::atomic 类模版，可以保证操作的原子性，确保其他线程看到的肯定是操作后的结果。类似对操作加锁，而其内部使用特殊指令实现，因而开销较小。考虑下面的应用场景：
+
+```c++
+std::atomic<int> ai(0);  // initialize ai to 0
+ai = 10;                 // atomically set ai to 10
+std::cout << ai;         // atomically read ai's value
+++ai;                    // atomically increment ai to 11
+--ai;                    // atomically decrement ai to 10
+```
+
+在上面代码执行过程中，其他线程读取 ai 的值只能是 0、10、11，不会有其他的值。这里面有两个方面值得注意：
+- 其一，std::cout << ai 这整个操作不是原子的，只能保证 ai 的读取是原子的，不能保证整个语句是原子的，也就是说在 ai 读取后和写到标准输出之间的时刻，ai 的值可以被其他线程修改。不过，也不影响到 ai 的输出值，因为 operator<< 是值拷贝的。
+- 其二，对于最后两条语句（++ai、--ai），它们都是 read-modify-write（RMW）类型操作，都是原子执行的。
+
+而对于使用 volatile 关键字的对应的例子：
+
+```c++
+volatile int vi(0);  // initialize vi to 0
+vi = 10;             // set vi to 10
+std::cout << vi;     // read vi's value
+++vi;                // increment vi to 11
+--vi;                // decrement vi to 10
+```
+
+在上述代码执行过程中，其他线程读取到 vi 值可能是任一值，例如 -12、68、4090727，这是一种位定义的行为。再考虑下面的场景：
+
+```c++
+std::atomic<int> ac(0);  // "atomic counter"
+volatile int vc(0);      // "volatile counter"
+
+// Thread 1
+++ac;
+++vc;
+
+// Thread 2
+++ac;
+++vc;
+```
+
+两个线程完成后，ac 的值肯定是 2，因为 ac 的 RMW 过程是保证原子的。但 vc 的值却不一定是 2，因为 vc 的 RMW 过程可以是交替进行的，例如：
+  1. 线程1 读取 vc 的值，为 0。
+  2. 线程2 读取 vc 的值，仍然为 0。
+  3. 线程1 将读取的 vc 值从增加到 1，然后写进 vc 的内存。
+  4. 线程2 将读取的 vc 值从增加到 1，然后写进 vc 的内存。
+
+这样， vc 的值最终为 1 。vc 最终的值是不可预测的，这是一种未定义的行为。
+
+这种 RMW 行为的原子性并不是关键字 volatile 和 atomic 类型的唯一区别。考虑这样一个场景：当一个线程完成一个重要计算后，通知另外一个线程。Item 39: Consider void futures for one-shot event communication. 讨论这一场景的方案。这里，我们使用 atomic 变量通信。代码类似如下：
+
+```c++
+std::atomic<bool> valAvailable(false);
+auto imptValue = computeImportantValue(); // compute value
+valAvailable = true;                      // tell other task it's available
+```
+
+从代码顺序上看，imptValue 的赋值发生在 valAvailable 赋值之前。但事实并未一定如此，编译器可以对改变二者的执行顺序以提高性能，例如：
+
+```c++
+a = b;
+x = y;
+```
+
+因为两个赋值语句不互相依赖，编译器可以重排序如下：
+
+```c++
+x = y;
+a = b;
+```
+
+即使编译器不重排序，底层的硬件也可能做重排序。
+
+但是 `std::atomic` 的使用禁止了编译器和底层硬件对这段代码的重排序，这种行为称为顺序一致性模型。而 `volatile` 无法阻止这种重排序。
+
+`volatile` 无法保证操作的原子性和无法阻止指令的重排序，这就导致了它在并发编程中很少使用，那么 `volatile` 的使用场景是什么呢？简而言之，`volatile` 用于告诉编译器它所处理的内存表现的不太“正常”。“正常”的内存有这样的特点：将一个值写入内存，这个值保持不变，直到它被改写。例如：
+
+```c++
+auto y = x; // read x
+y = x;      // read x again
+```
+
+上面的代码中，多次读取 x 的值，编译器可以这样优化：会将 x 的值放在寄存器中，再读取 x 的值时，直接从寄存器中读取即可。
+
+对于写内存，编译器也会做优化。例如：
+
+```c++
+x = 10; // write x
+x = 20; // write x again
+```
+
+编译器会进行优化：只执行了 x = 12 条语句，而删除 x = 10 这条语句。
+
+上述的优化对于“正常”行为的内存是适用的，但对于特殊的内存并不适用。最常见的这种特殊内存用于 memory-mapped I/O，这种内存用于和外设通信：
+
+```c++
+auto y = x; // read x
+y = x;      // read x again
+```
+
+这样的两次写内存都会对外设产生影响。例如外设根据该内存的值显示波形，那么上述多条写内存的操作就不是冗余的。对于这种情况来说必需使用 volatile 来告诉编译器禁止对变量的读写进行优化。例如：
+
+```c++
+volatile int x;
+
+auto y = x; // read x
+y = x;      // read x again (can't be optimized away)
+
+x = 10;  // write x (can't be optimized away)
+x = 20;  // write x again
+```
+
+而 std::atomic 无法做到这一点。例如：
+
+```c++
+std::atomic<int> x;
+x = 10;  // write x
+x = 20;  // write x again
+```
+
+可能被编译器优化为：
+
+```c++
+std::atomic<int> x;
+x = 20;  // write x
+```
+
+而对于：
+
+```c++
+std::atomic<int> x;
+auto y = x; // error!
+y = x;      // error!
+```
+
+实际上无法编译的，因为 std::atomic 的拷贝操作是被 deleted 的。std::atomic 的成员函数 load 和 store 可以提供这样的功能：
+
+```c++
+td::atomic<int> y(x.load()); // read x
+y.store(x.load());           // read x again
+```
+
+对于上述代码，编译器可能优化为：
+
+```c++
+register = x.load();           // read x into register
+std::atomic<int> y(register);  // init y with register value
+y.store(register);             // store register value into y
+```
+
+可以将二者结合起来使用。例如：
+
+```c++
+volatile std::atomic<int> vai;  // operations on vai are
+                                // atomic and can't be
+                                // optimized away
+```
+
+可以用于 memory-mapped I/O 内存，并被多线程访问。
+
+{{<admonition quote "总结" false>}}
+- std::atomic 用于不使用锁的多线程数据访问，用于编写并发程序。
+- volatile 阻止内存的读写优化。用于特殊内存的场景。
 {{</admonition>}}
 
-#### []()
-{{<admonition quote "总结" false>}}
 
+### CH08: Tweaks
+#### [Item 41: Consider pass by value for copyable parameters that are cheap to move and always copied.](https://blog.csdn.net/Dong_HFUT/article/details/127054642)
+
+C++ 函数参数传递方式有值传递、指针传递、引用传递的方式。一般地，考虑到拷贝开销，建议使用引用传递的方式。例如：
+
+```c++
+class Widget {
+public:
+  void addName(const std::string& newName) // take lvalue;
+  { names.push_back(newName); }            // copy it
+
+  void addName(std::string&& newName)      // take rvalue;
+  { names.push_back(std::move(newName)); } // move it; see
+  ...                                      // Item 25 for use
+                                           // of std::move
+private:
+  std::vector<std::string> names;
+};
+```
+
+对于左值，拷贝进 Widget.names 中。对于右值，移动进 Widget.names。上面代码是有效的，但是实现和维护两个函数有点冗余。
+
+另一种方案是使用万能引用（universal reference）传参。例如：
+
+```c++
+class Widget {
+public:
+  template<typename T>                            // take lvalues
+  void addName(T&& newName)                       // and rvalues;
+  {                                               // copy lvalues,
+    names.push_back(std::forward<T>(newName));    // move rvalues;
+  }                                               // see Item 25
+                                                  // for use of
+  ...                                             // std::forward
+};
+```
+
+万能引用版本代码量减少了很多，看起来也清爽很多，但也会有其他问题。但模板的实现一般要放到头文件里，也会实例化出多个版本（左值版本、右值版本以及可以转换为 std::string 的类型版本）。于此同时，还存在诸如 [Item 30](https://blog.csdn.net/Dong_HFUT/article/details/124787082?spm=1001.2014.3001.5502) 介绍万能引用和完美转发失效的例子、[Item 27](https://blog.csdn.net/Dong_HFUT/article/details/124227488?spm=1001.2014.3001.5502) 介绍的传参错误时编译报错可读性很差的问题。
+
+那么有没有什么完美的方案可以解决上述两种方案遇到的问题呢？我们来分析下值传递的方案。
+
+```c++
+class Widget {
+public:
+  void addName(std::string newName)         // take lvalue or
+  { names.push_back(std::move(newName)); }  // rvalue; move it
+  ...
+};
+```
+
+在 addName 内对 newName 使用 std::move 可以减少一次拷贝。这里使用 std::move 考虑到两点：首先，newName 独立于传入的参数，不会影响到调用者；再者，这里是最后使用 newName 的地方，对其移动不会影响其他代码。
+
+值传递的方案可以解决引用重载版本的源码冗余问题和万能引用版本的不适用场景、传参错误报错信息可读性等问题，那剩下的问题就是值传递方案的性能了。
+
+在 C++98 中，对于值传递的方案，不管传入的左值还是右值，newName 都会通过拷贝构造函数来构造。而到了 C++11，newName 在传入左值时是拷贝构造，传入右值是移动构造。考虑到下面的代码：
+
+```c++
+Widget w;
+...
+std::string name("Bart");
+
+w.addName(name);            // call addName with lvalue
+...
+w.addName(name + "Jenne");  // call addName with rvalue
+                            // (see below)
+```
+
+对于第一个调用，参数 `newName` 使用左值初始化，是拷贝构造。对于第二个调用，参数 `newName` 使用右值初始化，是移动构造。
+
+我们把上述三种方案写到一起再对比下性能：
+
+```c++
+class Widget {                             // Approach 1:overload for
+public:                                    // lvalues and rvalues.
+  void addName(const std::string& newName) // take lvalue;
+  { names.push_back(newName); }            // copy it
+
+  void addName(std::string&& newName)      // take rvalue;
+  { names.push_back(std::move(newName)); } // move it; see
+  ...                                      // Item 25 for use
+                                           // of std::move
+private:
+  std::vector<std::string> names;
+};
+
+class Widget {                             // Approach 2: use universal reference
+public:
+  void addName(const std::string& newName) // take lvalue;
+  { names.push_back(newName); }            // copy it
+
+  void addName(std::string&& newName)      // take rvalue;
+  { names.push_back(std::move(newName)); } // move it; see
+  ...                                      // Item 25 for use
+                                           // of std::move
+
+};
+
+class Widget {                              // Approach 3: pass by value
+public:
+  void addName(std::string newName)         // take lvalue or
+  { names.push_back(std::move(newName)); }  // rvalue; move it
+  ...
+};
+```
+
+同样，考虑上面两种调用方式：
+
+```c++
+Widget w;
+...
+std::string name("Bart");
+
+w.addName(name);            // call addName with lvalue
+...
+w.addName(name + "Jenne");  // call addName with rvalue
+                            // (see below)
+```
+
+这里，我们忽略掉编译器根据上下文信息所做的编译优化的干扰，对比下三种方案的性能开销：
+
+- **引用重载**：首先，无论是左值还是右值重载函数， 调用者的实参是被绑定到引用 newName上，没有拷贝或移动开销。再者，对于左值引用重载函数， newName 被拷贝到 Widget::names 内，而对于右值引用重载函数，newName 被移动到 Widget::names 内。总的来说，左值需要一次拷贝，右值需要一次移动。
+- **万能引用**：首先，调用者的实参也是被绑定到引用 newName上，也没有拷贝或移动开销。再者，由于使用了 std::forward ，左值实参则被拷贝到 Widget::names 内，而右值实参则被移动到 Widget::names 内。总的来说，左值需要一次拷贝，右值需要一次移动。对于调用者传入的参数不是 std::string 类型，而是可以转换为 std::string 的类型，比如 char* 类型，对于引用重载版本，需要先将 char* 构造成 std::string，这会增加其开销，而万能引用版本则直接将 char* 转发给 std::string 构造函数直接构造 std::string 类型，详见 Item 25 。这里不考虑这种特殊情况。
+- **值传递**：首先，对于左值，需要调用拷贝构造 newName，而对于右值，需要移动构造 newName。再者， newName 被无条件移动到 Widget::names 内。总的来说，左值需要一次拷贝加一次移动，右值需要两次移动。相较于前两种引用传参的方法，多了一次移动操作。
+
+
+再回头看下本 Item 的标题： Consider pass by value for copyable parameters that are cheap to move and always copied。缘于以下四个原因：
+
+  1. 只考虑值传递的话，只需要写一个函数，目标代码中也会生成一个函数，并且可以避免万能引用方法的问题。但是引入了一点性能开销。
+  2. 只对可拷贝的参数使用值传递方法。如果参数是 move-only 的，那值传递的方法肯定会失败。对于 move-only 类型参数，也无须提供左值引用重载函数，只需要一个右值引用的重载函数即可。例如，对于传递 std::unique_ptr 类型参数：
+  ```c++
+  	class Widget {
+	public:
+	  ...
+	  void setPtr(std::unique_ptr<std::string>&& ptr)
+	  { p = std::move(ptr); }
+	private:
+	  std::unique_ptr<std::string> p;
+	};
+	...
+	Widget w;
+    ...
+    w.setPtr(std::make_unique<std::string>("Modern C++"));
+  ```
+
+  上述代码，`std::make_unique<std::string>("Modern C++")` 产生一个右值，然后被移动到成员变量 p 上。因此总的开销是一次移动。如果只提供值传递的方法：
+    ```c++
+    class Widget {
+    public:
+      ...
+      void setPtr(std::unique_ptr<std::string> ptr)
+      { p = std::move(ptr); }
+      ...
+    };
+    ```
+
+  相同的调用，会隐式移动构造 `ptr`，接着移动赋值给`p`。因而总的开销则是两次移动操作。
+  3. 只有当移动开销低时才考虑值传递方法。因为只有当移动开销很低时，额外的一次移动才是可接受的。否则，执行一次不必要的移动操作和执行一次不必要的拷贝操作是类似的，都一样违反了 C++98 中避免值拷贝这一规则。
+  4. 只有当参数总是要被拷贝的时才考虑值传递方法。假设在将参数放入 Widget::names 内之前先对参数进行合法性检查，满足条件才放入到 Widget::names 内。例如：
+  ```c++
+  class Widget {
+  public:
+    void addName(std::string newName)
+    {
+      if ((newName.length() >= minLen) &&
+          (newName.length() <= maxLen))
+      {
+        names.push_back(std::move(newName));
+      }
+    }
+    ...
+  private:
+    std::vector<std::string> names;
+  };
+  ```
+  如果不满足条件则会浪费 newName 的构造和析构的开销，想比较而言，引用传参开销更小。
+
+
+即使上述条件都满足（移动开销低的可拷贝参数被无条件拷贝）时，值传递也不一定适用。函数参数的拷贝有两种方式：通过构造（拷贝构造或移动构造）和通过赋值（拷贝赋值或移动赋值）。上面例子中的 addName 使用的就是构造的方式，其参数 newName 通过拷贝构造创建了一个新的元素放在 std::vector 的尾部。这种情况比引用传参多一次移动。
+
+当参数通过赋值拷贝，情况要复杂的多。例如，你有一个表示密码的类，由于密码可以被改变，需要同时提供 setter 和 changeTo 两个方法，值传递方法的实现如下：
+
+```c++
+class Password {
+public:
+  explicit Password(std::string pwd)  // pass by value
+  : text(std::move(pwd)) {}           // construct text
+
+  void changeTo(std::string newPwd)   // pass by value
+  { text = std::move(newPwd); }       // assign text
+
+  ...
+
+private:
+  std::string text;                  // text of password
+};
+
+std::string initPwd("Supercalifragilisticexpialidocious");
+Password p(initPwd);
+```
+
+这里，`p.text` 通过构造函数进行了密码的初始化。通过前面的分析可知，相比较引用传递的方法，多了一次额外的移动开销。当通过下面的方式修改密码时：
+
+```c++
+std::string newPassword = "Beware the Jabberwock";
+p.changeTo(newPassword);
+```
+
+changeTo 采用的是赋值构造，值传递的方法会产生性能问题。构造 newPwd 时， std::string 的构造函数会被调用，这个构造函数中会分类内存来保存 newPwd，然后， newPwd 移动赋值给 text，这将导致 text 原来指向的内存会释放掉。也就是说，修改密码的过程发生一次内存的申请和一次内存的释放。其实在这里，旧的密码（“Supercalifragilisticexpialidocious”）比新的密码（“Beware the Jabberwock”）长度更长，没有必要申请或者释放内存。如果采用下面引用重载的方法，很可能申请和释放内存都不会发生：
+
+```c++
+class Password {
+public:
+  ...
+  void changeTo(const std::string& newPwd) // the overload
+  {                                        // for lvalues
+    text = newPwd;          // can reuse text's memory if
+                            // text.capacity() >= newPwd.size()
+  }
+  ...
+private:
+  std::string text;
+};
+```
+
+当 text 的字符串长度大于 newPwd 的时会复用已经分配的内存。因此，开销要比值传递的方式要小。如果旧密码的长度要比新密码短时，那么赋值过程中的申请和释放内存不可避免，则值传递和引用传递二者的开销一致。
+
+上面对函数参数通过赋值来拷贝的分析要考虑多种因素，例如传递的类型、左值还是右值、类型是否使用动态内存等。例如: 对于 std::string，如果它使用了SSO 优化，那么赋值的操作会将要赋值的内容放到 SSO 的缓存中，那么情况又不一样了。SSO 优化详见 [Item 29](https://blog.csdn.net/Dong_HFUT/article/details/124577258?spm=1001.2014.3001.5502)。
+
+如果要追求极致的性能，值传递的方式可能不再是一个可行的方法，因为避免一次廉价的移动开销也是很重要的。并且我们并不是总是知道会有多少次这样的移动操作，例如，addName 通过值传递造成了一次额外的移动操作，但是这个函数内部又调用了 validateName，并且也是值传递的方式，这将就又造成了一次额外的移动开销，validateName 内部如果再调用其他的函数，并且这个函数同样是值传递的方式呢?这就造成了累加效应，而采用引用传递的方式就不会有这样的累加效应。
+
+最后，一个与性能无关的话题，但却值得我们关注。那就是值传递的类型切割问题（slicing problem），详见 [C++ 按值传递的切割问题（Slicing Problem）](https://blog.csdn.net/Dong_HFUT/article/details/124577258?spm=1001.2014.3001.5502)。
+
+{{<admonition quote "总结" false>}}
+- 对于可复制、移动开销低、且无条件复制的参数，按值传递效率基本与按引用传递效率一致，而且易于实现，生成更少的目标代码。
+- 通过构造函数拷贝参数可能比通过赋值拷贝开销大的多。
+- 按值传递会引起切片问题，不适合基类类型的参数。
 {{</admonition>}}
 
-#### []()
+#### [Item 42: Consider emplacement instead of insertion.](https://blog.csdn.net/Dong_HFUT/article/details/127073175)
+
+如果你有一个容器用于保存 std::string，你可以使用插入函数（例如 insert、push_front、push_back 或 std::forward_list 的insert_after）添加元素。例如：
+
+```c++
+std::vector<std::string> vs;  // container of std::string
+vs.push_back("xyzzy");        // add string literal
+```
+
+这里，std::vector 的类型是 std::string，而插入的是字面值字符串（const char[6]）。std::vector 的 push_back 重载了左值和右值引用：
+
+```c++
+template <class T,                         // from the C++11
+          class Allocator = allocator<T>>  // Standard
+class vector {
+public:
+  ...
+  void push_back(const T& x);  // insert lvalue
+  void push_back(T&& x);       // insert rvalue
+  ...
+};
+```
+
+对于下面的调用：
+
+```c++
+vs.push_back("xyzzy");
+```
+
+由于实参的类型（const char[6]）和 push_back 形参类型（std::string 引用）类型不匹配，编译器会使用字符串字面值创建一个临时的 std::string 对象，再将这个临时对象传给 push_back，类似如下语义：
+
+```c++
+vs.push_back(std::string("xyzzy")); // create temp. std::string
+                                    // and pass it to push_back
+```
+
+我们再仔细分解一下编译器的行为如下：
+  1. 使用字面值 "xyzzy" 创建临时的 std::string 对象（记为 temp），这里调用一次 std::string 的构造函数。并且 temp 是一个右值。
+  2. temp 接着被传入右值引用重载的 push_back，也即将 temp 拷贝给 x。接着将 x 放入 vs 中，这里调用移动构造函数完成。
+  3. 最后 temp 被销毁，调用 std::string 的析构函数。
+
+我们只是将字符串字面值传给 std::string 容器，却要调用两次构造和一次析构，对于追求代码性能的程序员而言，这个性能开销可能是无法接受的。
+
+解决方案是使用 emplace_back 代替：
+
+```c++
+vs.emplace_back("xyzzy"); // construct std::string inside
+                          // vs directly from "xyzzy"
+```
+
+emplace_back 使用了完美转发机制，如果传入的是右值，将直接使用这个右值在容器内部完成元素的构造。使用 emplace_back 将不会创建临时的 std::string 对象，将使用传入的字符串字面值（"xyzzy"）直接在容器内构造 std::string 对象。只要传入的参数合法，emplace_back 可以接收任意参数，然后完美转发到容器内部直接构造容器的元素。例如：
+
+```c++
+vs.emplace_back(50, 'x'); // insert std::string consisting
+                          // of 50 'x' characters
+```
+
+`emplace` 系列接口和传统插入接口不同之处在于它可以接收可变参数，并且采用了完美转发机制，可以直接使用传入参数来构造容器元素（必须匹配到容器元素的构造函数）。而传统插入接口必须要插入和容器元素类型完全相同的对象。emplace 的优势是避免了临时对象的构造和析构。如果直接插入容器元素对象，那么二者是等价的，例如：
+
+```c++
+vs.push_back(queenOfDisco);     // copy-construct queenOfDisco
+                                // at end of vs
+
+vs.emplace_back(queenOfDisco);  // ditto
+```
+
+`emplace` 接口可以实现传统插入接口能做的所有事情，并且理论上，`emplace` 接口有时更高效。但实际却情况并非完全如此，虽然多数场景下，emplace 接口要比传统插入接口更加高效。但在少数场景下，传统插入接口要比 `emplace` 接口更加高效，这样的场景并不好归类，因为这取决于多种因素，例如传入参数的类型、使用的容器、插入容器中的位置、容器元素构造函数的异常安全机制、容器是否允许插入重复值、要插入的元素是否已经在容器中等。因而，给性能调优的建议是性能实测。
+
+当然还是有一定的办法帮你来识别，如果以下条件都满足，`emplace` 接口几乎肯定要比传统插入接口更加高效：
+  - **要插入的值是通过构造函数插入容器，而非赋值**。上面插入的字符串字面值就是这种情况，但如果插入的位置已经有元素了，情况就不同了，例如：
+    ```c++
+    std::vector<std::string> vs;
+    vs.emplace(vs.begin(), "xyzzy");  // add "xyzzy" to
+                                  // beginning of vs
+    ```
+    很少有编译器采用构造的方法将元素插入已经存在容器中存在的问题（这里是 vs[0]），而多数采用移动赋值的方法插入到已存在的位置。移动赋值需要被移动的对象，这就意味着需要构造临时的对象。那么 emplace 不会有临时对象的构造和析构的优势也就不存在了。
+  - **传入参数的类型和容器元素的类型不同**。emplace 的优势是需要构造临时的对象，如果传参的类型和容器元素的类型相同，也就不会产生临时对象了，emplace 的优势也就不存在了。
+  - **容器不大可能因为元素值重复而拒绝其加入**。这就意味着要不容器允许重复值加入，要不新加入的值大多数是唯一的。这样要求的原因是因为为了检测一个新值是否已经存在， emplace 的实现通常会创建一个新值的节点，然后和容器中已存在节点的值相比较，如果新节点的值不在容器中，则链接该节点。如果新节点的值已经在容器中，新创建的节点就要被销毁，这意味着新节点的构造和销毁就浪费了。
+
+下面的调用完全满足上面的条件，因而 `empalce_back` 比 `push_back` 要高效。
+
+```c++
+vs.emplace_back("xyzzy");  // construct new value at end of
+                           // container; don't pass the type in
+                           // container; don't use container
+                           // rejecting duplicates
+vs.emplace_back(50, 'x');  // ditto
+```
+
+在决定是否使用 `emplace` 的时候，还有另外两个因素需要注意。第一个因素就是资源管理。例如：
+
+```c++
+std::list<std::shared_ptr<Widget>> ptrs;
+```
+
+如果你要添加一个自定义 deleter 的 std::shared_ptr 对象，那么无法使用 std::make_shared_ptr 来创建（详见Item 21）。只能使用 std::shared_ptr 管理原始指针:
+
+```c++
+void killWidget(Widget* pWidget);
+
+ptrs.push_back(std::shared_ptr<Widget>(new Widget, killWidget));
+// ptrs.push_back({ new Widget, killWidget });  // ditto
+```
+
+这样会先创建一个临时的 std::shared_ptr 对象，然后再传给 push_back。如果使用 emplace 接口，原则上临时对象的创建是可以避免的，但是这里创建临时对象却是必要的，考虑下面的过程：
+  1. 首先，临时的 std::shared_ptr<Widge> 对象（temp）被创建。
+  2. 然后， push_back 接受 temp 的引用。在 分配节点（用于接收 temp 的拷贝）的时候发生 OOM（out-of-memory）。
+  3. 最后，异常从 push_back 传出后，temp 被销毁，它所管理的 Widget 对象也通过 killWidget 进行释放。
+
+而如果使用 empalce 接口：
+
+```c++
+ptrs.emplace_back(new Widget, killWidget);
+```
+
+  1. new Widget 创建的原始指针被完美转发到 emplace_back 内部构造器，此时发生 OOM。
+  2. 异常从 push_back 传出后，原始指针是 Widget 唯一访问路径，它直接被销毁，但其管理的内存却没办法释放，就会发生内存泄漏。
+
+对于 std::unique_ptr 也有类似的问题。出现这样问题的根本原因是 std::shared_ptr 和 std::unique_ptr 对资源的管理取决于它们是否立即接管了这个资源，而 emplace 的完美转发机制延迟了资源管理对象的创建，这就给资源异常留下了可能的机会。这也是为什么建议使用 std::make_shared 和 std::make_unique 创建对象的原因。其实不应该将 “new Widget” 这样的表达式直接传给传统插入和 emplace 这样的函数，而应该直接传智能指针对象，像下面这样：
+
+```c++
+std::shared_ptr<Widget> spw(new Widget,  // create Widget and
+                            killWidget); // have spw manage it
+ptrs.push_back(std::move(spw));          // add spw as rvalue
+```
+
+或者:
+
+```c++
+std::shared_ptr<Widget> spw(new Widget, killWidget);
+ptrs.emplace_back(std::move(spw));
+```
+
+两种方式都可以避免内存泄漏的问题，同时 emplace 的性能和传统插入接口也是一致的。
+
+使用 emplace 第二个值得注意的因素是它和显示构造函数的交互。C++11 支持了正则表达式，假设创建一个存放正则表达式的容器：
+
+```c++
+std::vector<std::regex> regexes;
+```
+
+如果不小心写出了下面的错误代码：
+
+```c++
+regexes.emplace_back(nullptr); // add nullptr to container
+                               // of regexes?
+```
+
+nullptr 不是正则表达式，为什么编译不会报错？例如：
+
+```c++
+std::regex r = nullptr; // error! won't compile
+```
+
+而使用 push_back 接口就是会报错：
+
+```c++
+regexes.push_back(nullptr); // error! won't compile
+```
+
+这背后的原因是使用字符串构造 std::regex 对象比较耗时，为此 std::regex 禁止隐式构造，采用 const char* 指针的std::regex 构造函数是显式的。这也就是下面代码无法编译通过的原因了：
+
+```c++
+std::regex r = nullptr;     // error! won't compile
+regexes.push_back(nullptr); // error! won't compile
+```
+
+使用 emplace 接口，由于完美转发机制，最后在容器内部直接拿到 const char* 显示构造 std::regex ，因此。下面的代码可以编译通过：
+
+```c++
+regexes.emplace_back(nullptr); // can compile
+```
+
+总而言之，使用 emplace 接口时一定要注意传入参数的正确性。
+
 {{<admonition quote "总结" false>}}
-
+- 原则上，emplacement 函数会比传统插入函数更高效。
+- 实际上，当执行如下操作时，emplacement 函数更快：（1）值被构造到容器中，而不是直接赋值；（2）传入参数的类型与容器类型不一致；（3）容器不拒绝已经存在的重复值。
+- emplacement 函数可能执行类型转化，而传统插入函数会拒绝。
 {{</admonition>}}
-
-
-
 
 
 Reference:</br>
