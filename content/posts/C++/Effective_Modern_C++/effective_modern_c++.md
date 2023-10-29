@@ -1,5 +1,5 @@
 ---
-title: Effective_modern_c++
+title: Effective Modern C++ 阅读笔记
 subtitle:
 date: 2023-10-12T20:01:17+08:00
 draft: false
