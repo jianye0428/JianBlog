@@ -1,8 +1,8 @@
 ---
-title: index 1
+title: Index
 subtitle:
-date: 2023-11-01T20:40:55+08:00
-draft: false
+date: 2023-11-01T21:14:06+08:00
+draft: true
 author:
   name: Jian YE
   link:
@@ -30,6 +30,3 @@ math: true
 lightgallery: false
 pagestyle: wide
 ---
-
-
-hidden
