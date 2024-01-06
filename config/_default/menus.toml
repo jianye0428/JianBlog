@@ -64,11 +64,11 @@
   [main.params]
     icon = "fa-solid fa-user-tie"
 [[main]]
-  identifier = "about"
+  identifier = "pilot"
   pre = ""
   post = ""
-  name = "关于的"
-  url = "/about/"
+  name = "导航"
+  url = "/pilot/"
   title = ""
   weight = 7
   [main.params]
