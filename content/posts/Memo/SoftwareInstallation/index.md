@@ -14,7 +14,7 @@ license:
 comment: false
 weight: 0
 tags:
-  - draft
+  - Linux
 categories:
   - Memo
 hiddenFromHomePage: false
@@ -116,7 +116,6 @@ lightgallery: false
       ```shell
       conda env export > environment.yml
       ```
-
       更新环境:
       ```shell
       conda env update -f environment.yml
@@ -148,13 +147,13 @@ lightgallery: false
 [Ref Link](https://blog.csdn.net/songbaiyao/article/details/72858184)
 
 1. Install `openmpi` with command line:
-```shell
-sudo apt-get install openmpi-bin openmpi-doc libopenmpi-dev
-```
-2. 在conda下安装openmapi:
-```shell
-conda install openmpi
-```
+    ```shell
+    sudo apt-get install openmpi-bin openmpi-doc libopenmpi-dev
+    ```
+1. 在conda下安装openmapi:
+    ```shell
+    conda install openmpi
+    ```
 
 ## 五、 Anaconda下安装jupyter notebook
 
@@ -208,5 +207,6 @@ conda install openmpi
    - variable inspector
    - ExecuteTime
    - Hide input all 隐藏代码输入
+7. jupyter notebook v7.0 extension installation support: https://github.com/jupyter/notebook/discussions/6881
 
 

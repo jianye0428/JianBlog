@@ -29,14 +29,28 @@ toc: true
 math: true
 lightgallery: false
 ---
-
-{{< admonition quote "quote" false >}}
-note abstract info tip success question warning failure danger bug example quote
-{{< /admonition >}}
-
-<!--more-->
+## 网址文档备忘
 
 https://kissingfire123.github.io/
 
 https://iyuantiao.me
+  - https://iyuantiao.me/clash-ssr-v2rayn.html
 www.freewhale.lol
+
+
+https://changkun.de/
+https://www.airchaoz.top/index.php/archives/13/
+
+编程类电子书集合:
+- https://github.com/xiaoweihan/Books/tree/master
+- https://github.com/Jackpopc/CS-Books-Store
+- https://github.com/tangtangcoding/C-C-
+[搬书匠](http://www.banshujiang.cn/)
+有空的时候可以看的书:
+- 《C++ 高级编程》
+-  MIT6.172 C++ 高性能编程
+
+
+https://lewky.cn/
+
+https://hugoloveit.com/zh-cn/theme-documentation-extended-shortcodes/#1-style

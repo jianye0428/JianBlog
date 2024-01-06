@@ -64,6 +64,16 @@
   [main.params]
     icon = "fa-solid fa-user-tie"
 [[main]]
+  identifier = "about"
+  pre = ""
+  post = ""
+  name = "关于的"
+  url = "/about/"
+  title = ""
+  weight = 7
+  [main.params]
+    icon = "fa-solid fa-user-tie"
+[[main]]
   identifier = "github"
   pre = "<i class='fa-brands fa-github fa-fw' aria-hidden='true'></i>"
   post = ""
