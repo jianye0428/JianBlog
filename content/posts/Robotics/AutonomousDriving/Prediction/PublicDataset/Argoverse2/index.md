@@ -2,7 +2,7 @@
 title: Argoverse 2 数据集
 subtitle:
 date: 2024-01-05T17:34:44+08:00
-draft: true
+draft: false
 author:
   name: Jian YE
   link:
