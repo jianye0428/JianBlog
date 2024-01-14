@@ -1,5 +1,5 @@
 ---
-title: CMake | [2] 多目录多文件的CMake构建方式
+title: CMake 笔记 | [2] 多目录多文件的CMake构建方式
 subtitle: --以及动态库、静态库的链接方式
 date: 2024-01-12T15:16:22+08:00
 draft: false
@@ -300,7 +300,7 @@ target_link_libraries(
 ```
 **代码释义:**
 
-{{<admonition quote "" false>}}
+{{<admonition quote "Tip" false>}}
 ```CMake
 # 设置可执行文件到bin文件夹下
 set(EXECUTE_FILE ${CMAKE_BINARY_DIR}/bin)
@@ -313,7 +313,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY  ${LIB_FILE})
 在构建项目时，我们为了使得项目结构更加清晰，使得生成的可执行文件、静态库以及动态库等文件能够存放在合适的位置。这样的构建方式有助于我们在项目重构、项目优化、debug的时候逻辑更加清晰。
 {{</admonition>}}
 
-{{<admonition quote "" false>}}
+{{<admonition quote "Tip" false>}}
 ```CMake
 include_directories(
     ${CMAKE_SOURCE_DIR}/message-module/include
@@ -330,7 +330,7 @@ include_directories(
 )
 ```
 
-{{<admonition quote "" false>}}
+{{<admonition quote "Tip" false>}}
 ```CMake
 add_subdirectory(
     ${CMAKE_SOURCE_DIR}/message-module
@@ -341,7 +341,7 @@ add_subdirectory(
 
 由于在本项目中，hello_world.cpp要使用message-module模块中编译生成的静态库，所以add_subdirectory命令将message-module添加到项目中, add_subdirectory的顺序必须要先于add_executable命令。
 
-{{<admonition quote "" false>}}
+{{<admonition quote "Tip" false>}}
 ```CMake
 add_executable(
     ${PROJECT_NAME}
@@ -450,7 +450,7 @@ target_link_libraries(
 
 代码释义:
 
-{{<admonition quote "" false>}}
+{{<admonition quote "Tip" false>}}
 ```CMake
 set(TEST_MESSAGE ${CMAKE_SOURCE_DIR}/third-party/lib/libtest_message.a)
 ```
@@ -773,14 +773,14 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
 
 代码释义:
 
-{{<admonition quote "" false>}}
+{{<admonition quote "Tip" false>}}
 ```CMake
 add_library(test_message::test_message ALIAS test_message)
 ```
 添加别名，以便库可以在构建树中使用，例如在测试时。
 {{</admonition>}}
 
-{{<admonition quote "" false>}}
+{{<admonition quote "Tip" false>}}
 ```CMake
 target_include_directories(test_message
     PUBLIC
@@ -793,7 +793,7 @@ target_include_directories(test_message
 综上，这段代码的作用是将当前项目的根目录添加到 “test_message” 目标的头文件包含路径中，以便在编译和安装时能够正确地访问这些头文件。
 {{</admonition>}}
 
-{{<admonition quote "" false>}}
+{{<admonition quote "Tip" false>}}
 ```CMake
 set_target_properties(test_message PROPERTIES
     CXX_STANDARD 11
@@ -869,7 +869,7 @@ target_link_libraries(
 
 **代码释义:**
 
-{{<admonition quote "" false>}}
+{{<admonition quote "Tip" false>}}
 ```CMake
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
   set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/output/)
@@ -938,14 +938,14 @@ endif()
 
 代码释义:
 
-{{<admonition quote "" false>}}
+{{<admonition quote "Tip" false>}}
 ```CMake
 set(TEST_MESSAGE ${CMAKE_SOURCE_DIR}/third-party/lib/test_message.lib)
 ```
 链接三方库的符号表
 {{</admonition>}}
 
-{{<admonition quote "" false>}}
+{{<admonition quote "Tip" false>}}
 ```CMake
 if (MSVC)
   file(GLOB MODEL "${CMAKE_SOURCE_DIR}/third-party/bin/*.dll")
