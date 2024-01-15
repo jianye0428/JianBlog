@@ -1,5 +1,5 @@
 ---
-title: CMake 笔记 | 条件语句、选项命令以及指定编译器
+title: CMake 笔记 | [4] 条件语句、选项命令以及指定编译器
 subtitle:
 date: 2024-01-15T09:07:13+08:00
 draft: false
