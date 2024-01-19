@@ -14,9 +14,9 @@ license:
 comment: false
 weight: 0
 tags:
-  - draft
+  - Effective Modern C++
 categories:
-  - draft
+  - C++
 hiddenFromHomePage: false
 hiddenFromSearch: false
 summary:

@@ -2,7 +2,7 @@
 title: C++ Concurrency in Action [2] | CH02 Managing Threads
 subtitle:
 date: 2023-11-01T21:16:33+08:00
-draft: true
+draft: false
 author:
   name: Jian YE
   link:

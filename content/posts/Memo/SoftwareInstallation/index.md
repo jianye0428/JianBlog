@@ -159,7 +159,7 @@ lightgallery: false
 
 1. 安装jupyter notebook
     ```shell
-    pip intall jupyter notebook==6.1.0
+    pip install jupyter notebook==6.1.0
     ```
 
 2. 安装nbextensions
