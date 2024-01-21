@@ -1,8 +1,8 @@
 ---
-title: Introduction
+title: RL | 强化学习 -- 简介
 subtitle:
 date: 2023-07-14T08:21:32+08:00
-draft: true
+draft: false
 author:
   name: Jian YE
   link:
@@ -72,7 +72,7 @@ $$\tau = (S_0, A_0, R_0, S_1, A_1, R_1, ... )$$
 
 ### 1.3 强化学习的数学建模
 
-(1) 马尔可夫过程 (Markov Process，MP）是一个具备马尔可夫性质的离散随机过程。
+(1) 马尔可夫过程 (Markov Process，MP) 是一个具备马尔可夫性质的离散随机过程。
 
 马尔可夫性质是指下一状态 $ S_{t+1} $ 只取决于当前状态 $S_t$.
 
