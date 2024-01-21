@@ -53,6 +53,7 @@ Agent interacts with its surroundings known as the environment. Agent will get a
 
 ### 1.2 强化学习的相关概念
 
+
 (1) 状态 State ($S$): agent’s observation of its environment;</br>
 
 (2) 动作 Action ($A$): the approaches that agent interacts with the environment;</br>
