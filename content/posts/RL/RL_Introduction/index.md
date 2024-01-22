@@ -30,6 +30,7 @@ math: true
 lightgallery: false
 ---
 
+\usepackage{amssymb}
 
 ## 1. 强化学习
 
