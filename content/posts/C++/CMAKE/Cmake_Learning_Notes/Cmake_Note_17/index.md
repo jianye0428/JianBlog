@@ -1,5 +1,5 @@
 ---
-title: CMake | [17] 检测外部库 -- 自定义find模块
+title: CMake 笔记 | [17] 检测外部库 -- 自定义find模块
 subtitle:
 date: 2024-01-28T13:30:35+08:00
 draft: false

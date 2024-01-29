@@ -1,5 +1,5 @@
 ---
-title: CMake | [18] 利用CTest进行单元测试
+title: CMake 笔记 | [18] 利用CTest进行单元测试
 subtitle:
 date: 2024-01-28T13:30:39+08:00
 draft: false
