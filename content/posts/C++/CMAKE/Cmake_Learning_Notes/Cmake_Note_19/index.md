@@ -2,7 +2,7 @@
 title: CMake 笔记 | [19] 利用Catch2库进行单元测试
 subtitle:
 date: 2024-01-28T13:30:42+08:00
-draft: true
+draft: false
 author:
   name: Jian YE
   link:
