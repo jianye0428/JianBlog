@@ -1,8 +1,8 @@
 ---
-title: 强化学习笔记 [12] |
+title: 强化学习笔记 [12] | Dueling DQN
 subtitle:
 date: 2024-02-25T11:16:52+08:00
-draft: true
+draft: false
 author:
   name: Jian YE
   link:
@@ -14,9 +14,9 @@ license:
 comment: false
 weight: 0
 tags:
-  - draft
+  - RL
 categories:
-  - draft
+  - RL
 hiddenFromHomePage: false
 hiddenFromSearch: false
 summary:
@@ -65,7 +65,7 @@ $$Q(S,A,w,\alpha,\beta)=V(S,w,\alpha)+A(S,A,w,\beta)$$
 
 我们可以直接使用上一节的价值函数的组合公式得到我们的动作价值，但是这个式子无法辨识最终输出里面 $V(S,w,α)$ 和 $A(S,A,w,β)$各自的作用，为了可以体现这种可辨识性(identifiability),实际使用的组合公式如下：
 
-$$Q(S,A,w,\alpha,\beta)=V(S,w,\alpha)+(A(S,A,w,\beta)-\frac1{\mathcal{A}}\sum_{a^{\prime}\in\mathcal{A}}A(S,a^{\prime},w,\beta))$$
+$$Q(S,A,w,\alpha,\beta)=V(S,w,\alpha)+(A(S,A,w,\beta)-\frac1{\mathcal{A}}\sum\_{a^{\prime}\in\mathcal{A}}A(S,a^{\prime},w,\beta))$$
 
 
 其实就是对优势函数部分做了中心化的处理。以上就是Dueling DQN的主要算法思路。由于它仅仅涉及神经网络的中间结构的改进，现有的DQN算法可以在使用Duel DQN网络结构的基础上继续使用现有的算法。由于算法主流程和其他算法没有差异，这里就不单独讲Duel DQN的算法流程了。
