@@ -29,4 +29,7 @@ toc: true
 math: true
 lightgallery: false
 pagestyle: wide
+repost:
+  enable: false
+  url:
 ---
