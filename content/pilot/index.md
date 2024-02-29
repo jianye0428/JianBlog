@@ -15,6 +15,7 @@ draft: false
     - [C++基础(二)](https://jianye0428.github.io/posts/basics_two/)
   - Cmake
     - [CMake简介](https://jianye0428.github.io/posts/cmake_introduction/)
+    - [CMake常用命令](https://jianye0428.github.io/posts/commandcollection/)
   - C++ Concurrency In Action
   - Effective Modern C++
   - Effective C++
@@ -23,5 +24,5 @@ draft: false
   - Effective STL
 - 软件安装
 - Git
-  - Git常用命令查询()
-  - Git核心知识点总结()
+  - [Git常用命令查询](https://jianye0428.github.io/posts/commandsheet/)
+  - [Git核心知识点总结](https://jianye0428.github.io/posts/gitnotes2/)
