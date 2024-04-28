@@ -14,7 +14,7 @@ license:
 comment: true
 weight: 0
 tags:
-  - draft
+  - LaneGCN
 categories:
   - Prediction
 hiddenFromHomePage: false
