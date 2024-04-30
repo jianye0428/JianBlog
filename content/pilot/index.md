@@ -25,6 +25,9 @@ draft: false
     - [part two](https://jianye0428.github.io/posts/effective_cpp_part_two/)
   - Effective STL
 - 软件安装
+  - [各种程序安装教程](https://jianye0428.github.io/posts/softwareinstallation/)
+  - [Vim安装教程](https://jianye0428.github.io/posts/vim_installation/)
+  - [Zsh安装教程](https://jianye0428.github.io/posts/zsh_installation/)
 - Git
   - [Git常用命令查询](https://jianye0428.github.io/posts/commandsheet/)
   - [Git核心知识点总结](https://jianye0428.github.io/posts/gitnotes2/)

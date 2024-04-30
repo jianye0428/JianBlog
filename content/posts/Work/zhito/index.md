@@ -45,7 +45,7 @@ lightgallery: false
   - data['orig']: agent在20帧时刻的位置，作为局部坐标的原点
   - data['theta']: agent在20帧的偏转角
   - data['rot']: 旋转矩阵以及坐标转换
-  - data['gt_preds']: M x 30 x 20 各个障碍物在后3秒的真实轨迹运动信息
+  - data['gt_preds']: M x 30 x 2 各个障碍物在后3秒(30帧)的真实轨迹运动信息
   - data['has_preds']: 标记在当前时刻真值是否被观测到
   > 坐标转换
   > $$\begin{bmatrix} x_g & y_g\end{bmatrix}\begin{bmatrix} cos\theta & -sin\theta \\ sin\theta & cos\theta \end{bmatrix} =\begin{bmatrix} x_l & y_l\end{bmatrix}$$
@@ -59,7 +59,7 @@ lightgallery: false
       - lane.centerline有10个点的坐标，相当于取9个lane node
       - ctrs: 每条lane centerline的10个点的前后相加除以2，作为lane node的中心点
       - feat：lane.centerline的10个点的前后位置相减，相当于9个lane segment，feat指vector feat
-      - turn: [a, b] a=1: 左转 b=1： 右转
+      - turn: [a, b] a=1: 左转 b=1: 右转
       - control: 是否有交通标志
       - intersect: 是否处于路口
 
