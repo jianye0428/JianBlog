@@ -110,7 +110,7 @@ lightgallery: false
 (2)、 对于`actor_gather()`和`graph_gather()`两个函数
   - actor_gather():
     - 输入: list (data['feat']) 输出: actors (M x 3 x 20), actor_idcs
-    - 作用： 在此处，把batch输入的障碍物特征进行concatenation整合到一起，并完成转置，将时序放到第一维，维后续的FPN网络做准备
+    - 作用： 在此处，把batch输入的障碍物特征进行concatenation整合到一起，并完成转置，将时序放到第一维，为后续的FPN网络做准备
   - graph_gather()
     - 输入：list (data['graph']) 输出: graph
     - 作用: 把batch中输入的lane graph特征进行叠加(concatenation)，用于后续训练
@@ -118,12 +118,12 @@ lightgallery: false
   - 输入: actors (M x 3 x 20)
   - 输出: actor net output (M x 128)
 
-  ActorNet 网络结果：
+  ActorNet 网络结构：
   - groups:
       ```c++
       group: Res1d(3, 32)     Res1d(32, 32)
       group: Res1d(32, 64)    Res1d(64, 64)
-      group: Res1d(128, 128)  Res1d(128, 128)
+      group: Res1d(64, 128)   Res1d(128, 128)
       ```
   - outputs [ groups[0], groups[1], groups[2]]
   - lateral [conv1d[32, 128], conv1d[64, 128], conv1d[128, 128]]
@@ -134,12 +134,12 @@ lightgallery: false
               Res1d(64, 128)                                      ||
              /\                                                   ||
              || (31 x 64 x 10)             (31 x 128 x 10)        \/
-    groups[2] Res1d(128, 128)  => conv1d(64, 128)     ====>    sum (31 x 128 x 10)
-              Res1d(64, 128)                                      ||
+    groups[1] Res1d(64, 64)  => conv1d(64, 128)     ====>    sum (31 x 128 x 10)
+              Res1d(32, 64)                                      ||
              /\                                               interpolate (31 x 128 x 20)
              || (31 x 32 x 20)               (31 x 128 x 20)      ||
-    groups[2] Res1d(128, 128)  => conv1d(32, 128)     ====>    sum (31 x 128 x 20)
-              Res1d(64, 128)                                      ||
+    groups[0] Res1d(32, 32)  => conv1d(32, 128)     ====>    sum (31 x 128 x 20)
+              Res1d(3, 32)                                      ||
              /\                                                  res1d(128, 128)
              ||                                                   ||  [:,:, -1]
         input: 31 x 3 x 20                                    output: 31 x 128
@@ -147,13 +147,13 @@ lightgallery: false
 (4)、MapNet(): 提取lane node的特征
   - 输入: graph['idcs', 'ctrs', 'feats', 'turn', 'control', 'intersect', 'pre', 'suc', 'left', 'right']
   - 输出: feat, graph['idcs'], graph['ctrs']
-    - graph['idcs']: lane node 的index
+    - graph['idcs']: lane node 的 index
       - len(graph['ctrs'][0]): 1206
       - len(graph['ctrs'][1]): 954
     - graph['ctrs']: 2160 x 2
   - 网络结构:
-    - self.input: Linear(2, 128) Linear(128, 128)
-    - self.seg: Linear(2, 128) Linear(128, 128)
+    - self.input: `Linear(2, 128)` `Linear(128, 128)` ==> 输入graph['ctrs'](N x 2) 输出: N x 128
+    - self.seg: `Linear(2, 128)` `Linear(128, 128)` ==> 输入: graph['feat'](N x 2) 输出: N x 128
 
     - self.fuse() => dict()
       - self.fuse['ctr']: Linear(128, 128)
@@ -176,14 +176,14 @@ lightgallery: false
     解释: 把feat的第v行(value)加到temp的第u行上
     对pre0 ~ pre5 / suc0 ~ suc5 / left / right执行相同操作 (图注意力)
     ||
-    然后经过self.fusr['norm'] 和 relu模块加上 resblock
+    然后经过self.fuse['norm'] 和 relu模块加上 resblock
     ||
     得到输出: feat: n x 128
             graph["idcs"]
             graph["ctrs"]
     ```
-(5)、A2M(): lane node 和 agent node 交互
-  - 在A2M模块中，agent node 是 lane node, context node 是 vehicle node (以laen node为中心， actor node为context)
+(5)、**A2M()**: lane node 和 agent node 交互
+  - 在A2M模块中，agent node 是 lane node, context node 是 vehicle node (以lane node为中心， actor node为context)
   - 输入: feat(nodes), graph, actors, actors_idcs, actor_ctrs
   - 输出: feat (n x n_agts)
   - 网络结构:
@@ -271,13 +271,13 @@ lightgallery: false
   - 最后计算cls和reg的loss
     - cls_loss += self.config["mgn"] * mask.sum() - mgn[mask].sum
     $\text{cls}_\text{loss} = max(0, {c_k} + \epsilon - \hat{c_k})$
-    - reg_loss = self.reg_loss(reg[has_preds], gt_preds[has_preds]) # 预测值和真值的huber loss
+    - reg_loss = self.reg_loss(reg[has_preds], gt_preds[has_preds]) # 预测值和真值的 huber loss
 
 ### 在移植以及部署过程中，碰到的问题以及解决方法
 
-(1). 由于模型应用场景的要求，对模型进行以下修改：
+(1). 由于模型应用场景的要求，对模型进行以下修改:
 
-  - 道路节点的upsample()和downsample()的处理：由于高速场景下，直线路段比较多，且高精地图提供的道路节点比较稀疏，我们对lane node进行upsample处理，每间隔20m取一个lane node，增加道路的拓扑信息；另一方面，在路口场景，由于道路节点比较密集，造成模型计算消耗过大，我们使用downsample的方式，每间隔5个lane node 选取一个lane node，来减少算例消耗
+  - 道路节点的upsample()和downsample()的处理: 由于高速场景下，直线路段比较多，且高精地图提供的道路节点比较稀疏，我们对lane node进行upsample处理，每间隔20m取一个lane node，增加道路的拓扑信息；另一方面，在路口场景，由于道路节点比较密集，造成模型计算消耗过大，我们使用downsample的方式，每间隔5个lane node 选取一个lane node，来减少算力消耗
   - 在原来的模型中，只关心focal agent的预测轨迹；在项目中，我们将ego vehicle的位置作为局部坐标原点，通过一次推理来获得周围车辆未来三秒的轨迹；
   - 在高速场景下，考虑到ego vehicle在行车过程中更倾向于考虑自车前方的道路拓扑结构和障碍物，那么我们在选取道路结构时，倾向于以自车前方40m， 半径为200m的区域来来构造lane graph。
   - 同时，在筛选道路过程中，碰到单个lane过长的情况，采用直接提取lane node的方式，将超出范围内的lane node直接截断，来减少算力消耗
@@ -286,7 +286,7 @@ lightgallery: false
 
 (2). 基于TensorRT模型推理方面遇到的问题以及解决方案
 
-  - scatterElement自定义算子的编写
+  - `scatterElement`自定义算子的编写
     - 原因: torch.index_add_() 重复索引的实现
      - __global__ 函数
        ```c
@@ -327,7 +327,7 @@ lightgallery: false
 1. 执行`prediction_actor.cc`
 2. 执行`PredictionActor::PredictionEndToEndProc()`函数:
   - 获取定位信息、感知信息
-  - 在`MessageProcess::OnPerception()`函数中执行一下两个函数:
+  - 在`MessageProcess::OnPerception()`函数中执行以下两个函数:
     - `EvaluatorManager::Instance()->Run()`: 判断障碍物的运行意图，给相应的lane sequence赋值概率，确定障碍物将要运动的lane sequence
     - `PredictorManager::Instance()->Run()`：根据evaluator获得的lane sequence, 获得相应的轨迹点或者路径点
 
@@ -338,7 +338,7 @@ lightgallery: false
     - 如果障碍物不在道路上，则通过`ModifyPriorityForOffLane()`给障碍修改谨慎等级
       - 如果障碍不在道路上， 筛选障碍物BoundingBox最左边和最右边的点，如果其中有一个点在ego_sequence上，则认为障碍物侵占自车车道，将priority改为Caution </br>
 
-    3.1. 如果障碍物在车道上，调用evaluator的纯虚函数，根据相应的Evaluator执行相应的Evaluator(), 在高速场景下对vehicle类型障碍物采用HighwayCVEvaluator.
+    3.1. 如果障碍物在车道上，调用evaluator的纯虚函数，根据相应的Evaluator实例化相应的Evaluator(), 在高速场景下对vehicle类型障碍物采用HighwayCVEvaluator.
       - 通过`HighwayCVEvaluator()`执行`Evalute()`函数
        - 对障碍物设定相应的Evaluator type
        - 执行`checkEgoFailed()`: 判断跟ego vehicle相关的pointer是否为空。如果相关ego vehicle的参数为nullpointer， 则设置current lane 的sequence概率为1. 认为障碍物会沿着当前道路行驶，因为无法参照自车进行预测。
@@ -455,5 +455,5 @@ lightgallery: false
     - 数据增强，最heading角进行范围的偏转
 
 
-https://zhuanlan.zhihu.com/p/360343417
-https://zhuanlan.zhihu.com/p/361006176
+[极简翻译模型Demo，彻底理解Transformer](https://zhuanlan.zhihu.com/p/360343417)</br>
+[港中文大学+商汤：mmTransformer 解决行为预测问题](https://zhuanlan.zhihu.com/p/361006176)
