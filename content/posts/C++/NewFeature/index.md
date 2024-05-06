@@ -1,8 +1,8 @@
 ---
-title: C++ 新特性
+title: C++ 新特性 | C++11\C++14\C++17
 subtitle:
 date: 2023-07-12T09:28:20+08:00
-draft: true
+draft: false
 author:
   name:
   link:
@@ -14,7 +14,7 @@ license:
 comment: false
 weight: 0
 tags:
-  - draft
+  - C++
 categories:
   - C++
 hiddenFromHomePage: false

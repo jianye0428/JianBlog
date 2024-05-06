@@ -2,7 +2,7 @@
 title: Index
 subtitle:
 date: 2023-07-14T08:43:50+08:00
-draft: true
+draft: false
 author:
   name:
   link:
@@ -14,9 +14,9 @@ license:
 comment: false
 weight: 0
 tags:
-  - draft
+  - PPO
 categories:
-  - draft
+  - RL
 hiddenFromHomePage: false
 hiddenFromSearch: false
 summary:
