@@ -1,5 +1,5 @@
 ---
-title: Index
+title: 强化学习 | PPO 论文解读
 subtitle:
 date: 2023-07-14T08:43:50+08:00
 draft: false
@@ -30,10 +30,4 @@ math: false
 lightgallery: false
 ---
 
-{{< admonition quote "quote" false >}}
-note abstract info tip success question warning failure danger bug example quote
-{{< /admonition >}}
-
-<!--more-->
-
-# PPO Architechture
+## 1. 引言
