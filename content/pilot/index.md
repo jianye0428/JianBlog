@@ -22,7 +22,7 @@ draft: false
   - {{< admonition Note "C++基础" false >}}
     💡 [C++基础(一)](https://jianye0428.github.io/posts/basics_one/)</br>
     💡 [C++基础(二)](https://jianye0428.github.io/posts/basics_two/)</br>
-    {{< /admonition >}}
+  {{< /admonition >}}
   - C++基础
     - [C++基础(一)](https://jianye0428.github.io/posts/basics_one/)
     - [C++基础(二)](https://jianye0428.github.io/posts/basics_two/)
