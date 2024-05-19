@@ -1,5 +1,5 @@
 ---
-title: Sorting Algorithms
+title: 排序算法
 subtitle:
 date: 2023-07-16T13:54:12+08:00
 draft: false
@@ -14,7 +14,7 @@ license:
 comment: false
 weight: 0
 tags:
-  - draft
+  - 算法
 categories:
   - Algorithm
 hiddenFromHomePage: false
