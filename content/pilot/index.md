@@ -36,13 +36,13 @@ draft: false
 {{<admonition Note "Math" false>}}
   - [曲线拟合](https://jianye0428.github.io/posts/linefitting/)<br>
 {{</admonition>}}
-- {{<admonition Note "GIT" false>}}
+
+{{<admonition Note "GIT" false>}}
   - [Git常用命令查询](https://jianye0428.github.io/posts/commandsheet/)<br>
   - [Git核心知识点总结](https://jianye0428.github.io/posts/gitnotes2/)<br>
 {{</admonition>}}
 
-{{</admonition>}}
-- {{<admonition Note "数据结构与算法" false>}}
+{{<admonition Note "数据结构与算法" false>}}
   - [排序算法](https://jianye0428.github.io/posts/sortingalgo/)<br>
   - [二叉树](https://jianye0428.github.io/posts/treenode/)<br>
   - [背包问题](https://jianye0428.github.io/posts/treenode/)<br>
