@@ -130,7 +130,6 @@ void merge_sort(vector<int>& nums, int l, int r, vector<int>& temp) {
 }
 ```
 
-
 ### 3. Insertion Sort 插入排序
 
 ```c++
@@ -244,20 +243,104 @@ int main() {
 - 教学目的：由于其简单性，冒泡排序常被用作教学示例，帮助初学者理解算法和排序的基本概念。
 - 需要稳定性：在某些特定情况下，保持元素的相对顺序很重要，冒泡排序可以满足这种稳定性需求。
 
-### 5. Selection Sort 选择排序
+### 5. 选择排序
 
+选择排序是一种简单直观的排序算法，它的工作原理是每一次从待排序的数据元素中选出最小（或最大）的一个元素，存放在序列的起始位置，直到全部待排序的数据元素排完。
+
+#### 5.1 算法步骤
+
+•开始：在未排序序列中找到最小（大）元素；
+
+•交换：将找到的最小（大）元素与序列的第0个元素交换；
+
+•移动：从序列的第1个元素开始，继续寻找最小（大）元素，然后与序列的第1个元素交换；
+
+•重复：重复步骤2和3，直到序列的第n-1个元素（其中n是序列的长度）。
+
+#### 5.2 算法图解
+
+选择排序通过重复扫描数组，找到最小的元素，然后将其与当前位置的元素交换。这个过程会一直进行，直到整个数组被排序。
+
+<br>
+<center>
+  <img src="images/5_1.webp" width="300" height="320" align=center style="border-radius: 0.3125em; box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);">
+  <br>
+  <div style="color:orange; border-bottom: 1px solid #d9d9d9; display: inline-block; color: #999; padding: 2px;">BP Network</div>
+</center>
+<br>
+
+#### 5.3 算法特点
+
+•简单：选择排序的实现相对简单，容易理解和编程实现。
+
+•不稳定：选择排序在交换过程中可能会改变相同元素的顺序，因此它不是稳定的排序算法。
+
+•时间复杂度：无论最好、最差还是平均情况下，时间复杂度都是O(n^2)，其中n是数列的长度。
+
+•空间复杂度：O(1)，选择排序是原地排序，不需要额外的存储空间。
+
+#### 5.4 代码实现
+
+```python
+def selection_sort(arr):
+  n = len(arr)
+  for i in range(n-1):
+    # 找到最小元素的索引
+    min_idx = i
+    for j in range(i+1, n):
+      if arr[j] < arr[min_idx]:
+          min_idx = j
+    # 将找到的最小元素交换到序列的前面
+    arr[i], arr[min_idx] = arr[min_idx], arr[i]
+  return arr
+
+# 示例
+arr = [64, 34, 25, 12, 22, 11, 90]
+sorted_arr = selection_sort(arr)
+print("Sorted array is:", sorted_arr)
+
+```
 ```c++
-void selection_sort(vector<int>& nums, int n) {
-    int mid;
-    for (int i = 0; i < n - 1; ++i) {
-        mid = i;
-        for (int j = i + 1; j < n; ++j) {
-            mid = j;
-        }
+void print_arr(vector<int>& nums) {
+  for (auto num:nums) {
+    std::cout << num << " ";
+  }
+  std::cout << std::endl;
+}
+
+void selection_sort(vector<int>& nums) {
+  int mid_idx;
+  int n = nums.size();
+  for (int i = 0; i < n - 1; ++i) {
+    mid_idx = i;
+    for (int j = i + 1; j < n; ++j) {
+      if (nums[j] < nums[mid_idx]) {
+        mid_idx = j;
+      }
     }
-    swap(nums[mid], nums[i]);
+    swap(nums[mid_idx], nums[i]);
+  }
+}
+
+int main() {
+  vector<int> arr = {64, 34, 25, 12, 22, 11, 90};
+  print_arr(arr);
+  selection_sort(arr);
+  print_arr(arr);
+  return 0;
 }
 ```
+
+#### 5.5 适用场景
+
+选择排序的性能相对较差，因此它不适用于大型数据集的排序。然而，在以下情况下，选择排序可能比较适用：
+
+•数据规模较小：当数据集较小时，选择排序的简单性可能使其成为一个合适的选择。
+
+•教学目的：由于其实现简单，选择排序常被用作教学示例，帮助初学者理解算法和排序的基本概念。
+
+•排序过程中的特定操作：在某些特定的应用场景中，如果排序过程中需要频繁地访问未排序部分的元素，选择排序可能比其他算法更合适。。
+
 
 ### 6. 计数排序
 
