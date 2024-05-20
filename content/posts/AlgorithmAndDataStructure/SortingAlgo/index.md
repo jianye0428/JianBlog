@@ -77,27 +77,98 @@ lightgallery: false
 
 ### 1. Quick Sort 快速排序
 
+快速排序（Quick Sort）是一种高效的排序算法，由C. A. R. Hoare在1960年提出。它采用分治法的策略，通过选择一个“基准”元素，将数组分为两部分：一部分包含所有小于基准的元素，另一部分包含所有大于基准的元素。然后递归地对这两部分进行快速排序。
+
+#### 1.1 算法步骤
+
+•选择基准：从数组中选择一个元素作为基准。
+
+•分区操作：重新排列数组，所有比基准小的元素放在基准的左边，所有比基准大的元素放在基准的右边。
+
+•递归排序：递归地对基准左边和右边的子数组进行快速排序。
+
+•完成：递归到基情况（数组只有一个或零个元素）时，排序完成。
+
+#### 1.2 算法图解
+
+快速排序通过选择一个基准值，将数组分为两部分，然后递归地对这两部分进行排序。
+
+<br>
+<center>
+  <img src="images/1_1.webp" width="340" height="320" align=center style="border-radius: 0.3125em; box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);">
+  <br>
+  <div style="color:orange; border-bottom: 1px solid #d9d9d9; display: inline-block; color: #999; padding: 2px;">BP Network</div>
+</center>
+<br>
+
+#### 1.3 算法特点
+
+•效率：在大多数情况下，快速排序的平均时间复杂度为O(n log n)。
+
+•不稳定性：快速排序是不稳定的排序算法，因为在分区过程中可能会改变相同元素的相对顺序。
+
+•时间复杂度：平均情况下为O(n log n)，但在最坏情况下（例如，数组已经排序或完全逆序）为O(n^2)。
+
+•空间复杂度：O(log n)，快速排序是原地排序算法，但递归性质导致它需要O(log n)的额外栈空间。
+
+
+#### 1.4 代码实现
+
+
+
+
 ```c++
 void quick_sort(vector<int>& nums, int l, int r) {
-    if (l + 1 >= r) {
-        return;
-    }
+  if (l + 1 >= r) {
+    return;
+  }
 
-    int first = l, last = r - 1, key = nums[first];
-    while (first < last) {
-        while (first < last && nums[last] >= key) {
-            --last;
-        }
-        nums[first] = nums[last];
-        while (first < last && nums[first] <= key) {
-            ++first;
-        }
-        nums[last] = nums[first];
+  int first = l, last = r - 1, key = nums[first];
+  while (first < last) {
+    while (first < last && nums[last] >= key) {
+      --last;
     }
-    nums[first] = key;
-    quick_sort(nums, l, first);
-    quick_sort(nums, first + 1, r);
+    nums[first] = nums[last];
+    while (first < last && nums[first] <= key) {
+      ++first;
+    }
+    nums[last] = nums[first];
+  }
+  nums[first] = key;
+  quick_sort(nums, l, first);
+  quick_sort(nums, first + 1, r);
 }
+```
+
+```python
+
+Python
+def quick_sort(arr, low, high):
+  if low < high:
+    # 分区操作
+    pivot_index = partition(arr, low, high)
+    # 递归地对基准左边和右边的子数组进行快速排序
+    quick_sort(arr, low, pivot_index - 1)
+    quick_sort(arr, pivot_index + 1, high)
+
+def partition(arr, low, high):
+  # 选择基准（这里以最右侧的元素作为基准）
+  pivot = arr[high]
+  i = low - 1
+  for j in range(low, high):
+    if arr[j] < pivot:
+      i += 1
+      arr[i], arr[j] = arr[j], arr[i]
+  # 将基准放到正确的位置
+  arr[i + 1], arr[high] = arr[high], arr[i + 1]
+  return i + 1
+
+# 示例
+arr = [10, 7, 8, 9, 1, 5]
+quick_sort(arr, 0, len(arr) - 1)
+print("Sorted array is:", arr)
+
+
 ```
 
 ### 2. Merge Sort 归并排序
