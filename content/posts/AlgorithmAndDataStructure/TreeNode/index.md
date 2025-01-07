@@ -33,9 +33,15 @@ lightgallery: false
 Runebook
 www.doc4dev.com
 
-## 深度优先遍历
+## 深度优先搜索
 
-![执行echo $PATH的结果](https://github.com/jianye0428/hello-hugo/raw/master/img/posts/tech/2022-08-14_TreeNode/TreeNode.png)
+<br>
+<center>
+  <img src="images/TreeNode.png" width="480" height="180" align=center style="border-radius: 0.3125em; box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);">
+  <br>
+  <div style="color:orange; border-bottom: 1px solid #d9d9d9; display: inline-block; color: #999; padding: 2px;">二叉树示意</div>
+</center>
+<br>
 
 - 前序遍历：中左右 `5 4 1 2 6 7 8`
 - 中序遍历：左中右 `1 4 2 5 7 6 8`

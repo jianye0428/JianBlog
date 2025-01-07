@@ -135,11 +135,11 @@ lightgallery: false
              /\                                                   ||
              || (31 x 64 x 10)             (31 x 128 x 10)        \/
     groups[1] Res1d(64, 64)  => conv1d(64, 128)     ====>    sum (31 x 128 x 10)
-              Res1d(32, 64)                                      ||
+              Res1d(32, 64)                                       ||
              /\                                               interpolate (31 x 128 x 20)
              || (31 x 32 x 20)               (31 x 128 x 20)      ||
     groups[0] Res1d(32, 32)  => conv1d(32, 128)     ====>    sum (31 x 128 x 20)
-              Res1d(3, 32)                                      ||
+              Res1d(3, 32)                                        ||
              /\                                                  res1d(128, 128)
              ||                                                   ||  [:,:, -1]
         input: 31 x 3 x 20                                    output: 31 x 128

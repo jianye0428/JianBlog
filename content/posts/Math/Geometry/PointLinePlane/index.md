@@ -65,6 +65,8 @@ $$2 {\times} 3+3 {\times} 2 - 4 = 8 > 0$$
 
 所以，在**两侧**。
 
+<iframe src="https://www.desmos.com/calculator/usnpu0237j?embed" width="500" height="500" style="border: 1px solid #ccc" frameborder=0></iframe>
+
 **方法2:**
 
 > 怎么判断坐标为(xp,yp)的点P是在直线的哪一侧呢?
@@ -258,9 +260,9 @@ int main() {
 
 (理解最好，理解不了也不要纠结，把叉乘公式记一下就ok)
 
-向量 $\overrightarrow{a}$ 是 $(m,n)$ , $\vec{b}$ 是 $(p,q)$
+向量 $\overrightarrow{a}$ 是 $(m,n)$ , $\overrightarrow{b}$ 是 $(p,q)$
 
-$$\vec{a}  \times  \vec{b} = m*q-n*p$$
+$$\overrightarrow{a}  \times  \overrightarrow{b} = m \cdot q - n \cdot p$$
 
 本题的核心思路就是这样。如果要让手撕代码，题目可能没有说输入的3个点是逆时针顺序的。比如，上图中如果依次输入的是A,C,B的坐标，那就不行了。
 

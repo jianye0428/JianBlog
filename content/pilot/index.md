@@ -48,3 +48,10 @@ draft: false
   - [背包问题](https://jianye0428.github.io/posts/treenode/)<br>
 {{</admonition>}}
 
+- {{<admonition Note "轨迹预测算法" false>}}
+  - [VectorNet](https://jianye0428.github.io/posts/vectornet/)<br>
+  - [CRAT-Prediction](https://jianye0428.github.io/posts/crat_pred/)<br>
+  - [LaneGCN](https://jianye0428.github.io/posts/lanegcn/)<br>
+  - [Social-STGCNN](https://jianye0428.github.io/posts/social_stgcnn/)<br>
+  - [TNT & DenseTNT](https://jianye0428.github.io/posts/densetnt_tnt/)<br>
+{{</admonition>}}

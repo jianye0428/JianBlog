@@ -30,8 +30,6 @@ math: true
 lightgallery: false
 ---
 
-
-
 ## Novel Highlights
 
  (1) 使用矢量化的高精地图以及障碍物的历史轨迹，从而避免有损渲染以及ConvNet编码(计算开销比较大)。
