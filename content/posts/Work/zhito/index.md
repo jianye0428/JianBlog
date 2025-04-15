@@ -71,8 +71,8 @@ lightgallery: false
       - pre['v']: 0 ~ 8 ...
       - suc['u']: 0 ~ 8 ... v 是 u 的 suc
       - suc['v']: 1 ~ 9 ...
-      > 注意： pre['u'] pre['v'] suc['u'] suc['v'] 指的是lane node之间的关系
-    - pre_pairs、 suc_pairs、 left_pairs、 right_pairs: 指的是lane 与 lane 之间的关系
+      > 注意: pre['u'] pre['v'] suc['u'] suc['v'] 指的是lane node之间的关系
+      > pre_pairs、 suc_pairs、 left_pairs、 right_pairs: 指的是lane 与 lane 之间的关系
   - 总结:
     - graph['ctrs']: lane node 中心点的坐标
     - graph['num_nodes']: lane node 点的数量
